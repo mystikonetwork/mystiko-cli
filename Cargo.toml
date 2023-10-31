@@ -1,0 +1,27 @@
+[package]
+name = "mystiko"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = { version = "1.0.69" }
+clap = { version = "4.4.7", features = ["derive"] }
+dirs = { version = "5.0.1" }
+env_logger = { version = "0.10.0" }
+log = { version = "0.4.17" }
+mystiko_config = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "f943403", features = ["fs"] }
+mystiko_core = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "f943403" }
+mystiko_protos = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "f943403", default-features = false, features = ["mystiko-common-v1", "mystiko-core-document-v1"] }
+mystiko_storage = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "f943403" }
+mystiko_storage_sqlite = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "f943403" }
+serde = { version = "1.0.152" }
+serde_json = { version = "1.0.91" }
+thiserror = { version = "1.0", default-features = false }
+tokio = { version = "1.27.0", features = ["fs", "rt", "rt-multi-thread", "macros"] }
+typed-builder = { version = "0.15.2" }
+
+[dev-dependencies]
+tempfile = { version = "3.8.1" }
+tokio = { version = "1.27.0", features = ["macros", "rt", "test-util"] }
