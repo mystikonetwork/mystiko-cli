@@ -1,7 +1,9 @@
 mod account;
+mod synchronizer;
 mod wallet;
 
 pub use account::*;
+pub use synchronizer::*;
 pub use wallet::*;
 
 use clap::{Parser, Subcommand};
@@ -41,4 +43,6 @@ pub enum MystikoCommands {
     Wallet(WalletCommand),
     #[command(about = "account command for managing accounts")]
     Account(AccountCommand),
+    #[command(about = "synchronizer command for synchronizing data")]
+    Synchronizer(SynchronizerCommand),
 }
