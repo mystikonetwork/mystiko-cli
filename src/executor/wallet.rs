@@ -2,19 +2,22 @@ use crate::{
     MystikoCliError, WalletCommand, WalletCommands, WalletCreateCommand,
     WalletExportMnemonicPhraseCommand, WalletImportCommand,
 };
-use mystiko_core::Mystiko;
+use mystiko_core::{Mystiko, SynchronizerHandler};
 use mystiko_protos::core::document::v1::Wallet;
 use mystiko_protos::core::handler::v1::CreateWalletOptions;
+use mystiko_protos::core::synchronizer::v1::{SyncOptions, SynchronizerStatus};
 use mystiko_storage::{StatementFormatter, Storage};
 
-pub async fn execute_wallet_command<F, S>(
-    mystiko: &Mystiko<F, S>,
+pub async fn execute_wallet_command<F, S, Y>(
+    mystiko: &Mystiko<F, S, Y>,
     args: WalletCommand,
     pretty_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
+    MystikoCliError: From<Y::Error>,
 {
     match args.commands {
         WalletCommands::Create(args) => {
@@ -29,14 +32,16 @@ where
     }
 }
 
-pub async fn execute_wallet_create_command<F, S>(
-    mystiko: &Mystiko<F, S>,
+pub async fn execute_wallet_create_command<F, S, Y>(
+    mystiko: &Mystiko<F, S, Y>,
     args: WalletCreateCommand,
     pretty_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
+    MystikoCliError: From<Y::Error>,
 {
     let options = CreateWalletOptions::builder()
         .password(args.password)
@@ -44,14 +49,16 @@ where
     print_wallet(mystiko.wallets.create(&options).await?, pretty_json)
 }
 
-pub async fn execute_wallet_import_command<F, S>(
-    mystiko: &Mystiko<F, S>,
+pub async fn execute_wallet_import_command<F, S, Y>(
+    mystiko: &Mystiko<F, S, Y>,
     args: WalletImportCommand,
     pretty_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
+    MystikoCliError: From<Y::Error>,
 {
     let options = CreateWalletOptions::builder()
         .password(args.password)
@@ -60,13 +67,15 @@ where
     print_wallet(mystiko.wallets.create(&options).await?, pretty_json)
 }
 
-pub async fn execute_wallet_export_mnemonic_phrase_command<F, S>(
-    mystiko: &Mystiko<F, S>,
+pub async fn execute_wallet_export_mnemonic_phrase_command<F, S, Y>(
+    mystiko: &Mystiko<F, S, Y>,
     args: WalletExportMnemonicPhraseCommand,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
+    MystikoCliError: From<Y::Error>,
 {
     let mnemonic_phrase = mystiko
         .wallets

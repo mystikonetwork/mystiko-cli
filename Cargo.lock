@@ -1450,6 +1450,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56254986775e3233ffa9c4d7d3faaf6d36a2c09d30b20687e9f88bc8bafc16c8"
 
 [[package]]
+name = "difflib"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6184e33543162437515c2e2b48714794e37845ec9851711914eec9d308f6ebe8"
+
+[[package]]
 name = "digest"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1526,6 +1532,12 @@ name = "dotenvy"
 version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
+
+[[package]]
+name = "downcast"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1435fa1053d8b2fbbe9be7e97eca7f33d37b28409959813daefc1446a14247f1"
 
 [[package]]
 name = "dunce"
@@ -2159,6 +2171,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "float-cmp"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "98de4bbd547a563b716d8dfa9aad1cb19bfab00f4fa09a6a4ed21dbcf44ce9c4"
+dependencies = [
+ "num-traits 0.2.17",
+]
+
+[[package]]
 name = "flume"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2183,6 +2204,12 @@ checksum = "a62bc1cf6f830c2ec14a513a9fb124d0a213a629668a4186f329db21fe045652"
 dependencies = [
  "percent-encoding",
 ]
+
+[[package]]
+name = "fragile"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c2141d6d6c8512188a7891b4b01590a45f6dac67afb4f255c4124dbb86d4eaa"
 
 [[package]]
 name = "from-pest"
@@ -3012,6 +3039,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "mockall"
+version = "0.11.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c84490118f2ee2d74570d114f3d0493cbf02790df303d2707606c3e14e07c96"
+dependencies = [
+ "cfg-if 1.0.0",
+ "downcast",
+ "fragile",
+ "lazy_static",
+ "mockall_derive",
+ "predicates",
+ "predicates-tree",
+]
+
+[[package]]
+name = "mockall_derive"
+version = "0.11.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22ce75669015c4f47b289fd4d4f56e894e4c96003ffdf3ac51313126f94c6cbb"
+dependencies = [
+ "cfg-if 1.0.0",
+ "proc-macro2 1.0.69",
+ "quote 1.0.33",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "multimap"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3022,10 +3076,12 @@ name = "mystiko"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "clap",
  "dirs",
  "env_logger",
  "log",
+ "mockall",
  "mystiko_config",
  "mystiko_core",
  "mystiko_protos",
@@ -3042,7 +3098,7 @@ dependencies = [
 [[package]]
 name = "mystiko_abi"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "ethers",
  "ethers-contract",
@@ -3054,7 +3110,7 @@ dependencies = [
 [[package]]
 name = "mystiko_config"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "lazy_static",
@@ -3076,7 +3132,7 @@ dependencies = [
 [[package]]
 name = "mystiko_core"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3156,7 +3212,7 @@ dependencies = [
 [[package]]
 name = "mystiko_dataloader"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3189,7 +3245,7 @@ dependencies = [
 [[package]]
 name = "mystiko_datapacker_client"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3213,7 +3269,7 @@ dependencies = [
 [[package]]
 name = "mystiko_datapacker_common"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "async-compression",
@@ -3230,7 +3286,7 @@ dependencies = [
 [[package]]
 name = "mystiko_ethers"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3251,7 +3307,7 @@ dependencies = [
 [[package]]
 name = "mystiko_etherscan_client"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "ethers",
@@ -3269,7 +3325,7 @@ dependencies = [
 [[package]]
 name = "mystiko_grpc"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "http",
@@ -3301,7 +3357,7 @@ dependencies = [
 [[package]]
 name = "mystiko_protos"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "ethers-core",
@@ -3325,7 +3381,7 @@ dependencies = [
 [[package]]
 name = "mystiko_protos_macros"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "heck",
  "proc-macro2 1.0.69",
@@ -3336,7 +3392,7 @@ dependencies = [
 [[package]]
 name = "mystiko_scheduler"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3349,7 +3405,7 @@ dependencies = [
 [[package]]
 name = "mystiko_sequencer_client"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3369,7 +3425,7 @@ dependencies = [
 [[package]]
 name = "mystiko_storage"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3385,7 +3441,7 @@ dependencies = [
 [[package]]
 name = "mystiko_storage_macros"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "Inflector",
  "heck",
@@ -3397,7 +3453,7 @@ dependencies = [
 [[package]]
 name = "mystiko_storage_sqlite"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3415,7 +3471,7 @@ dependencies = [
 [[package]]
 name = "mystiko_types"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "serde",
 ]
@@ -3423,7 +3479,7 @@ dependencies = [
 [[package]]
 name = "mystiko_utils"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "anyhow",
  "ethers-core",
@@ -3436,7 +3492,7 @@ dependencies = [
 [[package]]
 name = "mystiko_validator"
 version = "0.1.0"
-source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=f943403#f943403240a2565f9c8263c428fbc0fc0d85738b"
+source = "git+ssh://git@github.com/mystikonetwork/mystiko-rust.git?rev=7154eef#7154eeffaf080b93748c013347e91c10c34198c3"
 dependencies = [
  "lazy_static",
  "regex 1.10.2",
@@ -3464,6 +3520,12 @@ dependencies = [
  "memchr",
  "minimal-lexical",
 ]
+
+[[package]]
+name = "normalize-line-endings"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61807f77802ff30975e01f4f071c8ba10c022052f98b3294119f3e615d13e5be"
 
 [[package]]
 name = "num"
@@ -4085,6 +4147,36 @@ name = "precomputed-hash"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
+
+[[package]]
+name = "predicates"
+version = "2.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59230a63c37f3e18569bdb90e4a89cbf5bf8b06fea0b84e65ea10cc4df47addd"
+dependencies = [
+ "difflib",
+ "float-cmp",
+ "itertools 0.10.5",
+ "normalize-line-endings",
+ "predicates-core",
+ "regex 1.10.2",
+]
+
+[[package]]
+name = "predicates-core"
+version = "1.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b794032607612e7abeb4db69adb4e33590fa6cf1149e95fd7cb00e634b92f174"
+
+[[package]]
+name = "predicates-tree"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "368ba315fb8c5052ab692e68a0eefec6ec57b23a36959c14496f0b0df2c0cecf"
+dependencies = [
+ "predicates-core",
+ "termtree",
+]
 
 [[package]]
 name = "prettyplease"
@@ -5592,6 +5684,12 @@ checksum = "6093bad37da69aab9d123a8091e4be0aa4a03e4d601ec641c327398315f62b64"
 dependencies = [
  "winapi-util",
 ]
+
+[[package]]
+name = "termtree"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
 
 [[package]]
 name = "thiserror"

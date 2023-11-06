@@ -7,9 +7,10 @@ pub use error::*;
 pub use executor::*;
 
 use log::LevelFilter;
-use mystiko_core::{Database, Mystiko, MystikoOptions};
+use mystiko_core::{Database, Mystiko, MystikoOptions, SynchronizerHandler};
 use mystiko_protos::common::v1::ConfigOptions;
-use mystiko_storage::SqlStatementFormatter;
+use mystiko_protos::core::synchronizer::v1::{SyncOptions, SynchronizerStatus};
+use mystiko_storage::{SqlStatementFormatter, StatementFormatter, Storage};
 use mystiko_storage_sqlite::SqliteStorage;
 use std::path::PathBuf;
 
@@ -18,7 +19,6 @@ pub async fn execute(
 ) -> Result<Mystiko<SqlStatementFormatter, SqliteStorage>, MystikoCliError> {
     let _ = env_logger::builder()
         .filter_module("", args.extern_logging_level.parse::<LevelFilter>()?)
-        .filter_module("mystiko", args.logging_level.parse::<LevelFilter>()?)
         .filter_module("mystiko_core", args.logging_level.parse::<LevelFilter>()?)
         .try_init();
     let database = create_database(args.clone()).await?;
@@ -32,15 +32,33 @@ pub async fn execute(
         .config_options(config_options)
         .build();
     let mystiko = Mystiko::new(database, Some(options)).await?;
-    match args.commands {
+    execute_with_mystiko(&mystiko, args.commands, args.pretty_json).await?;
+    Ok(mystiko)
+}
+
+pub async fn execute_with_mystiko<F, S, Y>(
+    mystiko: &Mystiko<F, S, Y>,
+    commands: MystikoCommands,
+    pretty_json: bool,
+) -> Result<(), MystikoCliError>
+where
+    F: StatementFormatter,
+    S: Storage,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
+    MystikoCliError: From<Y::Error>,
+{
+    match commands {
         MystikoCommands::Wallet(wallet_args) => {
-            execute_wallet_command(&mystiko, wallet_args, args.pretty_json).await?
+            execute_wallet_command::<F, S, Y>(mystiko, wallet_args, pretty_json).await?
         }
         MystikoCommands::Account(account_args) => {
-            execute_account_command(&mystiko, account_args, args.pretty_json).await?
+            execute_account_command::<F, S, Y>(mystiko, account_args, pretty_json).await?
+        }
+        MystikoCommands::Synchronizer(synchronizer_args) => {
+            execute_synchronizer::<F, S, Y>(mystiko, synchronizer_args, pretty_json).await?
         }
     }
-    Ok(mystiko)
+    Ok(())
 }
 
 async fn create_database(

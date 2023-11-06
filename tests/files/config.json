@@ -253,5 +253,9 @@
   "packer": {
     "url": "https://static.mystiko.network/packer/v1"
   },
+  "sequencer": {
+    "host": "127.0.0.1",
+    "port": 50051
+  },
   "countryBlacklist": ["US", "CN"]
 }
