@@ -5,9 +5,11 @@ pub enum MystikoCliError {
     #[error(transparent)]
     MystikoError(#[from] mystiko_core::MystikoError),
     #[error(transparent)]
-    AccountHandlerError(#[from] mystiko_core::AccountHandlerError),
+    AccountsError(#[from] mystiko_core::AccountsError),
     #[error(transparent)]
-    WalletHandlerError(#[from] mystiko_core::WalletHandlerError),
+    WalletsError(#[from] mystiko_core::WalletsError),
+    #[error(transparent)]
+    DepositsError(#[from] mystiko_core::DepositsError),
     #[error(transparent)]
     SynchronizerError(#[from] mystiko_core::SynchronizerError),
     #[error(transparent)]

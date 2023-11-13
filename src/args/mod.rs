@@ -1,8 +1,10 @@
 mod account;
+mod deposit;
 mod synchronizer;
 mod wallet;
 
 pub use account::*;
+pub use deposit::*;
 pub use synchronizer::*;
 pub use wallet::*;
 
@@ -19,7 +21,7 @@ pub struct MystikoCliArgs {
     pub config_git_revision: Option<String>,
     #[arg(long, help = "path to config file")]
     pub config_path: Option<String>,
-    #[arg(long, help = "logging level of current crate", default_value = "warn")]
+    #[arg(long, help = "logging level of current crate", default_value = "info")]
     pub logging_level: String,
     #[arg(
         long,
@@ -43,6 +45,8 @@ pub enum MystikoCommands {
     Wallet(WalletCommand),
     #[command(about = "account command for managing accounts")]
     Account(AccountCommand),
+    #[command(about = "deposit command for managing deposits")]
+    Deposit(DepositCommand),
     #[command(about = "synchronizer command for synchronizing data")]
     Synchronizer(SynchronizerCommand),
 }

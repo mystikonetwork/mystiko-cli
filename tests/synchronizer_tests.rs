@@ -1,14 +1,10 @@
-use anyhow::Result;
-use async_trait::async_trait;
+#[allow(dead_code)]
+mod common;
+
+use crate::common::{mock_mystiko, MockSynchronizer};
 use clap::Parser;
-use mockall::mock;
 use mystiko::MystikoCliArgs;
-use mystiko_config::MystikoConfig;
-use mystiko_core::{AccountHandler, Database, Mystiko, SynchronizerHandler, WalletHandler};
-use mystiko_protos::core::synchronizer::v1::{ChainStatus, SyncOptions, SynchronizerStatus};
-use mystiko_storage::SqlStatementFormatter;
-use mystiko_storage_sqlite::SqliteStorage;
-use std::sync::Arc;
+use mystiko_protos::core::synchronizer::v1::{ChainStatus, SynchronizerStatus};
 
 #[tokio::test]
 async fn test_synchronizer_sync() {
@@ -44,7 +40,7 @@ async fn test_synchronizer_sync() {
                     .build()])
                 .build())
         });
-    let mystiko = setup(synchronizer).await;
+    let mystiko = mock_mystiko(synchronizer).await;
     let args = MystikoCliArgs::parse_from([
         "mystiko",
         "synchronizer",
@@ -88,46 +84,10 @@ async fn test_synchronizer_status() {
                     .build()])
                 .build())
         });
-    let mystiko = setup(synchronizer).await;
+    let mystiko = mock_mystiko(synchronizer).await;
     let args =
         MystikoCliArgs::parse_from(["mystiko", "synchronizer", "status", "--with-contracts"]);
     mystiko::execute_with_mystiko(&mystiko, args.commands, false)
         .await
         .unwrap();
-}
-
-async fn setup(
-    synchronizer: MockSynchronizer,
-) -> Mystiko<SqlStatementFormatter, SqliteStorage, MockSynchronizer> {
-    let database = Database::<SqlStatementFormatter, SqliteStorage>::new(
-        SqlStatementFormatter::sqlite(),
-        SqliteStorage::from_memory().await.unwrap(),
-    );
-    let database = Arc::new(database);
-    let wallets = WalletHandler::new(database.clone());
-    let accounts = AccountHandler::new(database.clone());
-    let config = MystikoConfig::from_json_file("tests/files/config.json")
-        .await
-        .unwrap();
-    Mystiko {
-        db: database,
-        config: Arc::new(config),
-        accounts,
-        wallets,
-        synchronizer,
-    }
-}
-
-mock! {
-    #[derive(Debug)]
-    Synchronizer {}
-
-    #[async_trait]
-    impl SynchronizerHandler<SyncOptions, SynchronizerStatus> for Synchronizer {
-        type Error = anyhow::Error;
-        async fn chain_synced_block(&self, chain_id: u64) -> Result<Option<u64>>;
-        async fn contract_synced_block(&self, chain_id: u64, contract_address: &str) -> Result<Option<u64>>;
-        async fn status(&self, with_contracts: bool) -> Result<SynchronizerStatus>;
-        async fn sync(&self, sync_option: SyncOptions) -> Result<()>;
-    }
 }
