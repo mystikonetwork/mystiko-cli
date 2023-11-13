@@ -2,22 +2,35 @@ use crate::{
     MystikoCliError, WalletCommand, WalletCommands, WalletCreateCommand,
     WalletExportMnemonicPhraseCommand, WalletImportCommand,
 };
-use mystiko_core::{Mystiko, SynchronizerHandler};
-use mystiko_protos::core::document::v1::Wallet;
-use mystiko_protos::core::handler::v1::CreateWalletOptions;
+use mystiko_core::{AccountHandler, DepositHandler, Mystiko, SynchronizerHandler, WalletHandler};
+use mystiko_protos::core::document::v1::{Account, Deposit, Wallet};
+use mystiko_protos::core::handler::v1::{
+    CreateAccountOptions, CreateDepositOptions, CreateWalletOptions, DepositQuote, DepositSummary,
+    QuoteDepositOptions, SendDepositOptions, UpdateAccountOptions,
+};
 use mystiko_protos::core::synchronizer::v1::{SyncOptions, SynchronizerStatus};
 use mystiko_storage::{StatementFormatter, Storage};
 
-pub async fn execute_wallet_command<F, S, Y>(
-    mystiko: &Mystiko<F, S, Y>,
+pub async fn execute_wallet_command<F, S, W, A, D, Y>(
+    mystiko: &Mystiko<F, S, W, A, D, Y>,
     args: WalletCommand,
     pretty_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
+    W: WalletHandler<Wallet, CreateWalletOptions>,
+    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
+    D: DepositHandler<
+        Deposit,
+        QuoteDepositOptions,
+        DepositQuote,
+        CreateDepositOptions,
+        DepositSummary,
+        SendDepositOptions,
+    >,
     Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
-    MystikoCliError: From<Y::Error>,
+    MystikoCliError: From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error>,
 {
     match args.commands {
         WalletCommands::Create(args) => {
@@ -32,16 +45,26 @@ where
     }
 }
 
-pub async fn execute_wallet_create_command<F, S, Y>(
-    mystiko: &Mystiko<F, S, Y>,
+pub async fn execute_wallet_create_command<F, S, W, A, D, Y>(
+    mystiko: &Mystiko<F, S, W, A, D, Y>,
     args: WalletCreateCommand,
     pretty_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
+    W: WalletHandler<Wallet, CreateWalletOptions>,
+    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
+    D: DepositHandler<
+        Deposit,
+        QuoteDepositOptions,
+        DepositQuote,
+        CreateDepositOptions,
+        DepositSummary,
+        SendDepositOptions,
+    >,
     Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
-    MystikoCliError: From<Y::Error>,
+    MystikoCliError: From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error>,
 {
     let options = CreateWalletOptions::builder()
         .password(args.password)
@@ -49,16 +72,26 @@ where
     print_wallet(mystiko.wallets.create(&options).await?, pretty_json)
 }
 
-pub async fn execute_wallet_import_command<F, S, Y>(
-    mystiko: &Mystiko<F, S, Y>,
+pub async fn execute_wallet_import_command<F, S, W, A, D, Y>(
+    mystiko: &Mystiko<F, S, W, A, D, Y>,
     args: WalletImportCommand,
     pretty_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
+    W: WalletHandler<Wallet, CreateWalletOptions>,
+    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
+    D: DepositHandler<
+        Deposit,
+        QuoteDepositOptions,
+        DepositQuote,
+        CreateDepositOptions,
+        DepositSummary,
+        SendDepositOptions,
+    >,
     Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
-    MystikoCliError: From<Y::Error>,
+    MystikoCliError: From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error>,
 {
     let options = CreateWalletOptions::builder()
         .password(args.password)
@@ -67,15 +100,25 @@ where
     print_wallet(mystiko.wallets.create(&options).await?, pretty_json)
 }
 
-pub async fn execute_wallet_export_mnemonic_phrase_command<F, S, Y>(
-    mystiko: &Mystiko<F, S, Y>,
+pub async fn execute_wallet_export_mnemonic_phrase_command<F, S, W, A, D, Y>(
+    mystiko: &Mystiko<F, S, W, A, D, Y>,
     args: WalletExportMnemonicPhraseCommand,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
+    W: WalletHandler<Wallet, CreateWalletOptions>,
+    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
+    D: DepositHandler<
+        Deposit,
+        QuoteDepositOptions,
+        DepositQuote,
+        CreateDepositOptions,
+        DepositSummary,
+        SendDepositOptions,
+    >,
     Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
-    MystikoCliError: From<Y::Error>,
+    MystikoCliError: From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error>,
 {
     let mnemonic_phrase = mystiko
         .wallets

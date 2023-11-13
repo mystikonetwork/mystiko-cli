@@ -1,6 +1,7 @@
 use clap::Parser;
 use mystiko::MystikoCliArgs;
 
+#[allow(dead_code)]
 mod common;
 
 #[tokio::test]
