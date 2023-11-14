@@ -1,0 +1,96 @@
+use crate::args::parse_bridge_types;
+use clap::{Args, Subcommand};
+use mystiko_protos::core::scanner::v1::{BalanceOptions, ResetOptions, ScanOptions};
+
+#[derive(Debug, Clone, Args)]
+pub struct ScannerCommand {
+    #[command(subcommand)]
+    pub commands: ScannerCommands,
+}
+
+#[derive(Debug, Clone, Subcommand)]
+pub enum ScannerCommands {
+    #[command(about = "scan the chain for available private assets")]
+    Scan(ScannerScanCommand),
+    #[command(about = "reset the scanner")]
+    Reset(ScannerResetCommand),
+    #[command(about = "get the balance of private assets in the current wallet")]
+    Balance(ScannerBalanceCommand),
+}
+
+#[derive(Debug, Clone, Args)]
+pub struct ScannerScanCommand {
+    #[arg(long, help = "password of the current wallet")]
+    pub password: String,
+    #[arg(
+        long,
+        default_value_t = 10000,
+        help = "batch size for each scanning round"
+    )]
+    pub batch_size: u64,
+    #[arg(
+        long,
+        default_value_t = 1,
+        help = "number of concurrency for each scanning round"
+    )]
+    pub concurrency: u32,
+    #[arg(long, help = "the shielded address(es) to be scanned for")]
+    pub shielded_address: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Args)]
+pub struct ScannerResetCommand {
+    #[arg(long, help = "reset the scanner to the given commitment id")]
+    pub to_id: Option<String>,
+    #[arg(long, help = "the shielded address(es) to be reset")]
+    pub shielded_address: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Args)]
+pub struct ScannerBalanceCommand {
+    #[arg(long, help = "to include the spent total in the balance")]
+    pub with_spent: bool,
+    #[arg(long, help = "show the balance of the given shielded address(es)")]
+    pub shielded_address: Option<Vec<String>>,
+    #[arg(long, help = "show the balance of the given chain id(s)")]
+    pub chain_id: Option<Vec<u64>>,
+    #[arg(long, help = "show the balance of the given contract address(es)")]
+    pub contract_address: Option<Vec<String>>,
+    #[arg(long, help = "show the balance of the given asset symbol(s)")]
+    pub asset_symbol: Option<Vec<String>>,
+    #[arg(long, help = "show the balance of the given bridge type(s)")]
+    pub bridge_type: Option<Vec<String>>,
+}
+
+impl From<ScannerScanCommand> for ScanOptions {
+    fn from(args: ScannerScanCommand) -> Self {
+        ScanOptions::builder()
+            .wallet_password(args.password)
+            .batch_size(args.batch_size)
+            .concurrency(args.concurrency)
+            .shielded_addresses(args.shielded_address.unwrap_or_default())
+            .build()
+    }
+}
+
+impl From<ScannerResetCommand> for ResetOptions {
+    fn from(args: ScannerResetCommand) -> Self {
+        ResetOptions::builder()
+            .reset_to_id(args.to_id.unwrap_or_default())
+            .shielded_addresses(args.shielded_address.unwrap_or_default())
+            .build()
+    }
+}
+
+impl From<ScannerBalanceCommand> for BalanceOptions {
+    fn from(args: ScannerBalanceCommand) -> Self {
+        BalanceOptions::builder()
+            .with_spent(args.with_spent)
+            .shielded_addresses(args.shielded_address.unwrap_or_default())
+            .chain_ids(args.chain_id.unwrap_or_default())
+            .contract_addresses(args.contract_address.unwrap_or_default())
+            .asset_symbols(args.asset_symbol.unwrap_or_default())
+            .bridge_types(parse_bridge_types(&args.bridge_type.unwrap_or_default()))
+            .build()
+    }
+}

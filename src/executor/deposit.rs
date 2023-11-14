@@ -1,32 +1,25 @@
 use crate::args::{parse_bridge_types, parse_deposit_statuses};
 use crate::{
-    DepositCommand, DepositCommands, DepositCreateCommand, DepositListCommand, DepositQuoteCommand,
-    MystikoCliError,
+    print_json, DepositCommand, DepositCommands, DepositCreateCommand, DepositListCommand,
+    DepositQuoteCommand, MystikoCliError,
 };
-use mystiko_core::{
-    AccountHandler, DepositColumn, DepositHandler, Mystiko, SynchronizerHandler, WalletHandler,
-};
-use mystiko_protos::core::document::v1::{Account, Deposit, Wallet};
+use mystiko_core::{DepositColumn, DepositHandler, Mystiko};
+use mystiko_protos::core::document::v1::Deposit;
 use mystiko_protos::core::handler::v1::{
-    CreateAccountOptions, CreateDepositOptions, CreateWalletOptions, DepositQuote, DepositSummary,
-    QuoteDepositOptions, SendDepositOptions, UpdateAccountOptions,
+    CreateDepositOptions, DepositQuote, DepositSummary, QuoteDepositOptions, SendDepositOptions,
 };
-use mystiko_protos::core::synchronizer::v1::{SyncOptions, SynchronizerStatus};
 use mystiko_protos::storage::v1::{
     Condition, ConditionOperator, Order, OrderBy, QueryFilter, SubFilter,
 };
 use mystiko_storage::{DocumentColumn, StatementFormatter, Storage};
-
-pub async fn execute_deposit_command<F, S, W, A, D, Y>(
-    mystiko: &Mystiko<F, S, W, A, D, Y>,
+pub async fn execute_deposit_command<F, S, W, A, D, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
     args: DepositCommand,
-    pretty_json: bool,
+    compact_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
-    W: WalletHandler<Wallet, CreateWalletOptions>,
-    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
     D: DepositHandler<
         Deposit,
         QuoteDepositOptions,
@@ -35,32 +28,29 @@ where
         DepositSummary,
         SendDepositOptions,
     >,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
-    MystikoCliError: From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error>,
+    MystikoCliError: From<D::Error>,
 {
     match args.commands {
         DepositCommands::Quote(args) => {
-            execute_deposit_quote_command(mystiko, args, pretty_json).await
+            execute_deposit_quote_command(mystiko, args, compact_json).await
         }
         DepositCommands::Create(args) => {
-            execute_deposit_create_command(mystiko, args, pretty_json).await
+            execute_deposit_create_command(mystiko, args, compact_json).await
         }
         DepositCommands::List(args) => {
-            execute_deposit_list_command(mystiko, args, pretty_json).await
+            execute_deposit_list_command(mystiko, args, compact_json).await
         }
     }
 }
 
-pub async fn execute_deposit_quote_command<F, S, W, A, D, Y>(
-    mystiko: &Mystiko<F, S, W, A, D, Y>,
+pub async fn execute_deposit_quote_command<F, S, W, A, D, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
     args: DepositQuoteCommand,
-    pretty_json: bool,
+    compact_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
-    W: WalletHandler<Wallet, CreateWalletOptions>,
-    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
     D: DepositHandler<
         Deposit,
         QuoteDepositOptions,
@@ -69,28 +59,20 @@ where
         DepositSummary,
         SendDepositOptions,
     >,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
-    MystikoCliError: From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error>,
+    MystikoCliError: From<D::Error>,
 {
     let quote = mystiko.deposits.quote(args.into()).await?;
-    if pretty_json {
-        println!("{}", serde_json::to_string_pretty(&quote)?);
-    } else {
-        println!("{}", serde_json::to_string(&quote)?);
-    }
-    Ok(())
+    print_json(&quote, compact_json)
 }
 
-pub async fn execute_deposit_create_command<F, S, W, A, D, Y>(
-    mystiko: &Mystiko<F, S, W, A, D, Y>,
+pub async fn execute_deposit_create_command<F, S, W, A, D, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
     args: DepositCreateCommand,
-    pretty_json: bool,
+    compact_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
-    W: WalletHandler<Wallet, CreateWalletOptions>,
-    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
     D: DepositHandler<
         Deposit,
         QuoteDepositOptions,
@@ -99,8 +81,7 @@ where
         DepositSummary,
         SendDepositOptions,
     >,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
-    MystikoCliError: From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error>,
+    MystikoCliError: From<D::Error>,
 {
     let deposit = mystiko.deposits.create(args.clone().into()).await?;
     let options = SendDepositOptions::builder()
@@ -114,19 +95,17 @@ where
         .tx_send_timeout_ms(args.tx_send_timeout_ms)
         .build();
     let deposit = mystiko.deposits.send(options).await?;
-    print_deposit(deposit, pretty_json)
+    print_json(&deposit, compact_json)
 }
 
-pub async fn execute_deposit_list_command<F, S, W, A, D, Y>(
-    mystiko: &Mystiko<F, S, W, A, D, Y>,
+pub async fn execute_deposit_list_command<F, S, W, A, D, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
     args: DepositListCommand,
-    pretty_json: bool,
+    compact_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
     S: Storage,
-    W: WalletHandler<Wallet, CreateWalletOptions>,
-    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
     D: DepositHandler<
         Deposit,
         QuoteDepositOptions,
@@ -135,8 +114,7 @@ where
         DepositSummary,
         SendDepositOptions,
     >,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
-    MystikoCliError: From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error>,
+    MystikoCliError: From<D::Error>,
 {
     let mut sub_filters = vec![];
     if let Some(chain_ids) = args.chain_id {
@@ -232,16 +210,7 @@ where
         .build();
     let deposits = mystiko.deposits.find(filter).await?;
     for deposit in deposits.into_iter() {
-        print_deposit(deposit, pretty_json)?;
-    }
-    Ok(())
-}
-
-fn print_deposit(deposit: Deposit, pretty_json: bool) -> Result<(), MystikoCliError> {
-    if pretty_json {
-        println!("{}", serde_json::to_string_pretty(&deposit)?);
-    } else {
-        println!("{}", serde_json::to_string(&deposit)?);
+        print_json(&deposit, compact_json)?;
     }
     Ok(())
 }

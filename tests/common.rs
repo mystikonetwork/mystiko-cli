@@ -2,12 +2,15 @@ use async_trait::async_trait;
 use mockall::mock;
 use mystiko_core::{
     Accounts, Database, DepositHandler, FromContext, Mystiko, MystikoContext, MystikoError,
-    MystikoOptions, SynchronizerHandler, TransactionSigner, Wallets,
+    MystikoOptions, ScannerHandler, SynchronizerHandler, TransactionSigner, Wallets,
 };
 use mystiko_protos::common::v1::ConfigOptions;
 use mystiko_protos::core::document::v1::Deposit;
 use mystiko_protos::core::handler::v1::{
     CreateDepositOptions, DepositQuote, DepositSummary, QuoteDepositOptions, SendDepositOptions,
+};
+use mystiko_protos::core::scanner::v1::{
+    BalanceOptions, BalanceResult, ResetOptions, ResetResult, ScanOptions, ScanResult,
 };
 use mystiko_protos::core::synchronizer::v1::{SyncOptions, SynchronizerStatus};
 use mystiko_protos::storage::v1::QueryFilter;
@@ -56,6 +59,7 @@ where
             .unwrap(),
         deposits: mock_options.deposits,
         synchronizer: mock_options.synchronizer,
+        scanner: mock_options.scanner,
     }
 }
 
@@ -66,12 +70,14 @@ pub type MockMystiko = Mystiko<
     Accounts<SqlStatementFormatter, SqliteStorage>,
     MockDeposits,
     MockSynchronizer,
+    MockScanner,
 >;
 
 #[derive(Debug, Default, TypedBuilder)]
 #[builder(field_defaults(default, setter(into)))]
 pub struct MockMystikoOptions {
     pub deposits: MockDeposits,
+    pub scanner: MockScanner,
     pub synchronizer: MockSynchronizer,
 }
 
@@ -140,6 +146,43 @@ where
 impl From<MockDeposits> for MockMystikoOptions {
     fn from(value: MockDeposits) -> Self {
         MockMystikoOptions::builder().deposits(value).build()
+    }
+}
+
+mock! {
+    #[derive(Debug, Default)]
+    pub Scanner {}
+
+    #[async_trait]
+    impl ScannerHandler<
+        ScanOptions,
+        ScanResult,
+        ResetOptions,
+        ResetResult,
+        BalanceOptions,
+        BalanceResult,
+    > for Scanner {
+        type Error = anyhow::Error;
+        async fn scan(&self, options: ScanOptions) -> anyhow::Result<ScanResult>;
+        async fn reset(&self, options: ResetOptions) -> anyhow::Result<ResetResult>;
+        async fn balance(&self, options: BalanceOptions) -> anyhow::Result<BalanceResult>;
+    }
+}
+
+#[async_trait]
+impl<F, S> FromContext<F, S> for MockScanner
+where
+    F: StatementFormatter,
+    S: Storage,
+{
+    async fn from_context(_context: &MystikoContext<F, S>) -> Result<Self, MystikoError> {
+        Ok(MockScanner::new())
+    }
+}
+
+impl From<MockScanner> for MockMystikoOptions {
+    fn from(value: MockScanner) -> Self {
+        MockMystikoOptions::builder().scanner(value).build()
     }
 }
 

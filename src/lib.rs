@@ -8,8 +8,8 @@ pub use executor::*;
 
 use log::LevelFilter;
 use mystiko_core::{
-    AccountHandler, Database, DepositHandler, Mystiko, MystikoOptions, SynchronizerHandler,
-    WalletHandler,
+    AccountHandler, Database, DepositHandler, Mystiko, MystikoOptions, ScannerHandler,
+    SynchronizerHandler, WalletHandler,
 };
 use mystiko_protos::common::v1::ConfigOptions;
 use mystiko_protos::core::document::v1::{Account, Deposit, Wallet};
@@ -17,9 +17,13 @@ use mystiko_protos::core::handler::v1::{
     CreateAccountOptions, CreateDepositOptions, CreateWalletOptions, DepositQuote, DepositSummary,
     QuoteDepositOptions, SendDepositOptions, UpdateAccountOptions,
 };
+use mystiko_protos::core::scanner::v1::{
+    BalanceOptions, BalanceResult, ResetOptions, ResetResult, ScanOptions, ScanResult,
+};
 use mystiko_protos::core::synchronizer::v1::{SyncOptions, SynchronizerStatus};
 use mystiko_storage::{SqlStatementFormatter, StatementFormatter, Storage};
 use mystiko_storage_sqlite::SqliteStorage;
+use serde::Serialize;
 use std::path::PathBuf;
 
 pub async fn execute(
@@ -40,14 +44,14 @@ pub async fn execute(
         .config_options(config_options)
         .build();
     let mystiko = Mystiko::new(database, Some(options)).await?;
-    execute_with_mystiko(&mystiko, args.commands, args.pretty_json).await?;
+    execute_with_mystiko(&mystiko, args.commands, args.compact_json).await?;
     Ok(mystiko)
 }
 
-pub async fn execute_with_mystiko<F, S, W, A, D, Y>(
-    mystiko: &Mystiko<F, S, W, A, D, Y>,
+pub async fn execute_with_mystiko<F, S, W, A, D, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
     commands: MystikoCommands,
-    pretty_json: bool,
+    compact_json: bool,
 ) -> Result<(), MystikoCliError>
 where
     F: StatementFormatter,
@@ -63,22 +67,47 @@ where
         SendDepositOptions,
     >,
     Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
-    MystikoCliError: From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error>,
+    R: ScannerHandler<
+        ScanOptions,
+        ScanResult,
+        ResetOptions,
+        ResetResult,
+        BalanceOptions,
+        BalanceResult,
+    >,
+    MystikoCliError:
+        From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error> + From<R::Error>,
 {
     match commands {
         MystikoCommands::Wallet(wallet_args) => {
-            execute_wallet_command::<F, S, W, A, D, Y>(mystiko, wallet_args, pretty_json).await?
-        }
-        MystikoCommands::Account(account_args) => {
-            execute_account_command::<F, S, W, A, D, Y>(mystiko, account_args, pretty_json).await?
-        }
-        MystikoCommands::Deposit(deposit_args) => {
-            execute_deposit_command::<F, S, W, A, D, Y>(mystiko, deposit_args, pretty_json).await?
-        }
-        MystikoCommands::Synchronizer(synchronizer_args) => {
-            execute_synchronizer::<F, S, W, A, D, Y>(mystiko, synchronizer_args, pretty_json)
+            execute_wallet_command::<F, S, W, A, D, Y, R>(mystiko, wallet_args, compact_json)
                 .await?
         }
+        MystikoCommands::Account(account_args) => {
+            execute_account_command::<F, S, W, A, D, Y, R>(mystiko, account_args, compact_json)
+                .await?
+        }
+        MystikoCommands::Deposit(deposit_args) => {
+            execute_deposit_command::<F, S, W, A, D, Y, R>(mystiko, deposit_args, compact_json)
+                .await?
+        }
+        MystikoCommands::Scanner(scanner_args) => {
+            execute_scanner_command::<F, S, W, A, D, Y, R>(mystiko, scanner_args, compact_json)
+                .await?
+        }
+        MystikoCommands::Synchronizer(synchronizer_args) => {
+            execute_synchronizer::<F, S, W, A, D, Y, R>(mystiko, synchronizer_args, compact_json)
+                .await?
+        }
+    }
+    Ok(())
+}
+
+pub fn print_json<T: Serialize>(value: &T, compact: bool) -> Result<(), MystikoCliError> {
+    if compact {
+        println!("{}", serde_json::to_string(value)?);
+    } else {
+        println!("{}", serde_json::to_string_pretty(value)?);
     }
     Ok(())
 }

@@ -13,7 +13,7 @@ async fn test_wallet_create() {
         "tests/files/config.json",
         "--db-path",
         &db_path,
-        "--pretty-json",
+        "--compact-json",
         "wallet",
         "create",
         "--password",

@@ -14,7 +14,7 @@ async fn test_account_create() {
         "tests/files/config.json",
         "--db-path",
         &db_path,
-        "--pretty-json",
+        "--compact-json",
         "account",
         "create",
         "--password",
