@@ -1,10 +1,12 @@
 mod account;
 mod deposit;
+mod scanner;
 mod synchronizer;
 mod wallet;
 
 pub use account::*;
 pub use deposit::*;
+pub use scanner::*;
 pub use synchronizer::*;
 pub use wallet::*;
 
@@ -33,8 +35,8 @@ pub struct MystikoCliArgs {
     pub db_path: Option<String>,
     #[arg(long, help = "in memory database")]
     pub in_memory: bool,
-    #[arg(long, help = "pretty print json")]
-    pub pretty_json: bool,
+    #[arg(long, help = "output compact json string")]
+    pub compact_json: bool,
     #[command(subcommand)]
     pub commands: MystikoCommands,
 }
@@ -47,6 +49,8 @@ pub enum MystikoCommands {
     Account(AccountCommand),
     #[command(about = "deposit command for managing deposits")]
     Deposit(DepositCommand),
+    #[command(about = "scanner command for scanning the private assets")]
+    Scanner(ScannerCommand),
     #[command(about = "synchronizer command for synchronizing data")]
     Synchronizer(SynchronizerCommand),
 }
