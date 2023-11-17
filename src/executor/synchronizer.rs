@@ -1,9 +1,9 @@
 use crate::{
     print_json, MystikoCliError, SynchronizerCommand, SynchronizerCommands,
-    SynchronizerStatusCommand, SynchronizerSyncCommand,
+    SynchronizerResetCommand, SynchronizerStatusCommand, SynchronizerSyncCommand,
 };
 use mystiko_core::{Mystiko, SynchronizerHandler};
-use mystiko_protos::core::synchronizer::v1::{SyncOptions, SynchronizerStatus};
+use mystiko_protos::core::synchronizer::v1::{ResetOptions, SyncOptions, SynchronizerStatus};
 use mystiko_storage::{StatementFormatter, Storage};
 
 pub async fn execute_synchronizer<F, S, W, A, D, Y, R>(
@@ -14,7 +14,7 @@ pub async fn execute_synchronizer<F, S, W, A, D, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, ResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     match args.commands {
@@ -23,6 +23,9 @@ where
         }
         SynchronizerCommands::Status(args) => {
             execute_synchronizer_status(mystiko, args, compact_json).await
+        }
+        SynchronizerCommands::Reset(args) => {
+            execute_synchronizer_reset(mystiko, args, compact_json).await
         }
     }
 }
@@ -35,7 +38,7 @@ pub async fn execute_synchronizer_sync<F, S, W, A, D, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, ResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     mystiko.synchronizer.sync(args.into()).await?;
@@ -51,9 +54,30 @@ pub async fn execute_synchronizer_status<F, S, W, A, D, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, ResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     let status = mystiko.synchronizer.status(args.with_contracts).await?;
+    print_json(&status, compact_json)
+}
+
+pub async fn execute_synchronizer_reset<F, S, W, A, D, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+    args: SynchronizerResetCommand,
+    compact_json: bool,
+) -> Result<(), MystikoCliError>
+where
+    F: StatementFormatter,
+    S: Storage,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, ResetOptions>,
+    MystikoCliError: From<Y::Error>,
+{
+    let options: ResetOptions = args.into();
+    let with_contracts = options
+        .chains
+        .iter()
+        .any(|chain| !chain.contract_addresses.is_empty());
+    mystiko.synchronizer.reset(options).await?;
+    let status = mystiko.synchronizer.status(with_contracts).await?;
     print_json(&status, compact_json)
 }

@@ -10,9 +10,12 @@ use mystiko_protos::core::handler::v1::{
     CreateDepositOptions, DepositQuote, DepositSummary, QuoteDepositOptions, SendDepositOptions,
 };
 use mystiko_protos::core::scanner::v1::{
-    BalanceOptions, BalanceResult, ResetOptions, ResetResult, ScanOptions, ScanResult,
+    AssetsOptions, BalanceOptions, BalanceResult, ChainAssetsResult, ResetOptions, ResetResult,
+    ScanOptions, ScanResult,
 };
-use mystiko_protos::core::synchronizer::v1::{SyncOptions, SynchronizerStatus};
+use mystiko_protos::core::synchronizer::v1::{
+    ResetOptions as SynchronizerResetOptions, SyncOptions, SynchronizerStatus,
+};
 use mystiko_protos::storage::v1::QueryFilter;
 use mystiko_storage::{ColumnValues, SqlStatementFormatter, StatementFormatter, Storage};
 use mystiko_storage_sqlite::SqliteStorage;
@@ -161,11 +164,15 @@ mock! {
         ResetResult,
         BalanceOptions,
         BalanceResult,
+        AssetsOptions,
+        ChainAssetsResult,
     > for Scanner {
         type Error = anyhow::Error;
         async fn scan(&self, options: ScanOptions) -> anyhow::Result<ScanResult>;
         async fn reset(&self, options: ResetOptions) -> anyhow::Result<ResetResult>;
         async fn balance(&self, options: BalanceOptions) -> anyhow::Result<BalanceResult>;
+        async fn assets(&self, options: AssetsOptions) -> anyhow::Result<Vec<ChainAssetsResult>>;
+        async fn chain_assets(&self, chain_id: u64, options: AssetsOptions) -> anyhow::Result<ChainAssetsResult>;
     }
 }
 
@@ -191,12 +198,13 @@ mock! {
     pub Synchronizer {}
 
     #[async_trait]
-    impl SynchronizerHandler<SyncOptions, SynchronizerStatus> for Synchronizer {
+    impl SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions> for Synchronizer {
         type Error = anyhow::Error;
         async fn chain_synced_block(&self, chain_id: u64) -> anyhow::Result<Option<u64>>;
         async fn contract_synced_block(&self, chain_id: u64, contract_address: &str) -> anyhow::Result<Option<u64>>;
         async fn status(&self, with_contracts: bool) -> anyhow::Result<SynchronizerStatus>;
         async fn sync(&self, sync_option: SyncOptions) -> anyhow::Result<()>;
+        async fn reset(&self, reset_options: SynchronizerResetOptions) -> anyhow::Result<()>;
     }
 }
 

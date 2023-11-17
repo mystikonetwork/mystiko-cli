@@ -99,3 +99,42 @@ async fn test_scanner_balance() {
         .await
         .unwrap();
 }
+
+#[tokio::test]
+async fn test_scanner_assets() {
+    let mut scanner = MockScanner::new();
+    scanner
+        .expect_assets()
+        .withf(|options| options.shielded_addresses == vec!["test".to_string()])
+        .returning(|_| Ok(Default::default()));
+    let mystiko = mock_mystiko(scanner).await;
+    let args =
+        MystikoCliArgs::parse_from(["mystiko", "scanner", "assets", "--shielded-address", "test"]);
+    execute_with_mystiko(&mystiko, args.commands, false)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn test_scanner_chain_assets() {
+    let mut scanner = MockScanner::new();
+    scanner
+        .expect_chain_assets()
+        .withf(|chain_id, options| {
+            *chain_id == 1_u64 && options.shielded_addresses == vec!["test".to_string()]
+        })
+        .returning(|_, _| Ok(Default::default()));
+    let mystiko = mock_mystiko(scanner).await;
+    let args = MystikoCliArgs::parse_from([
+        "mystiko",
+        "scanner",
+        "assets",
+        "--chain-id",
+        "1",
+        "--shielded-address",
+        "test",
+    ]);
+    execute_with_mystiko(&mystiko, args.commands, false)
+        .await
+        .unwrap();
+}

@@ -1,5 +1,5 @@
 use clap::{Args, Subcommand};
-use mystiko_protos::core::synchronizer::v1::SyncOptions;
+use mystiko_protos::core::synchronizer::v1::{ResetChainOptions, ResetOptions, SyncOptions};
 
 #[derive(Debug, Clone, Args)]
 pub struct SynchronizerCommand {
@@ -13,6 +13,8 @@ pub enum SynchronizerCommands {
     Sync(SynchronizerSyncCommand),
     #[command(about = "get synchronizer status")]
     Status(SynchronizerStatusCommand),
+    #[command(about = "reset synchronizer data")]
+    Reset(SynchronizerResetCommand),
 }
 
 #[derive(Debug, Clone, Args)]
@@ -82,13 +84,27 @@ pub struct SynchronizerSyncCommand {
     #[arg(long, help = "fetcher validate concurrency")]
     pub validator_validate_concurrency: Option<u64>,
     #[arg(long, help = "chains to be synchronized")]
-    pub chain_ids: Vec<u64>,
+    pub chain_id: Vec<u64>,
 }
 
 #[derive(Debug, Clone, Args)]
 pub struct SynchronizerStatusCommand {
     #[arg(long, default_value_t = false, help = "include contracts status")]
     pub with_contracts: bool,
+}
+
+#[derive(Debug, Clone, Args)]
+pub struct SynchronizerResetCommand {
+    #[arg(long, help = "reset the synchronized data of the specific chain")]
+    pub chain_id: u64,
+    #[arg(long, help = "reset the synchronized data of the specific contract(s)")]
+    pub contract_address: Option<Vec<String>>,
+    #[arg(
+        long,
+        help = "reset the synchronized data to the given block number, \
+        if not specified, reset to contract deploy block"
+    )]
+    pub to: Option<u64>,
 }
 
 impl From<SynchronizerSyncCommand> for SyncOptions {
@@ -108,7 +124,18 @@ impl From<SynchronizerSyncCommand> for SyncOptions {
             .fetcher_fetch_timeout_ms(command.fetcher_fetch_timeout_ms)
             .fetcher_query_loaded_block_timeout_ms(command.fetcher_query_loaded_block_timeout_ms)
             .validator_validate_concurrency(command.validator_validate_concurrency)
-            .chain_ids(command.chain_ids)
+            .chain_ids(command.chain_id)
             .build()
+    }
+}
+
+impl From<SynchronizerResetCommand> for ResetOptions {
+    fn from(args: SynchronizerResetCommand) -> Self {
+        let chain_options = ResetChainOptions::builder()
+            .chain_id(args.chain_id)
+            .contract_addresses(args.contract_address.unwrap_or_default())
+            .block_number(args.to)
+            .build();
+        ResetOptions::builder().chains(vec![chain_options]).build()
     }
 }
