@@ -1,6 +1,6 @@
 use crate::args::parse_bridge_types;
 use clap::{Args, Subcommand};
-use mystiko_protos::core::scanner::v1::{BalanceOptions, ResetOptions, ScanOptions};
+use mystiko_protos::core::scanner::v1::{AssetsOptions, BalanceOptions, ResetOptions, ScanOptions};
 
 #[derive(Debug, Clone, Args)]
 pub struct ScannerCommand {
@@ -16,6 +16,8 @@ pub enum ScannerCommands {
     Reset(ScannerResetCommand),
     #[command(about = "get the balance of private assets in the current wallet")]
     Balance(ScannerBalanceCommand),
+    #[command(about = "group the private assets by chain_id/bridge_type/asset_symbol")]
+    Assets(ScannerAssetsCommand),
 }
 
 #[derive(Debug, Clone, Args)]
@@ -62,6 +64,14 @@ pub struct ScannerBalanceCommand {
     pub bridge_type: Option<Vec<String>>,
 }
 
+#[derive(Debug, Clone, Args)]
+pub struct ScannerAssetsCommand {
+    #[arg(long, help = "show the assets of the given chain_id(s)")]
+    pub chain_id: Option<Vec<u64>>,
+    #[arg(long, help = "show the assets of the given contract address(es)")]
+    pub shielded_address: Option<Vec<String>>,
+}
+
 impl From<ScannerScanCommand> for ScanOptions {
     fn from(args: ScannerScanCommand) -> Self {
         ScanOptions::builder()
@@ -91,6 +101,14 @@ impl From<ScannerBalanceCommand> for BalanceOptions {
             .contract_addresses(args.contract_address.unwrap_or_default())
             .asset_symbols(args.asset_symbol.unwrap_or_default())
             .bridge_types(parse_bridge_types(&args.bridge_type.unwrap_or_default()))
+            .build()
+    }
+}
+
+impl From<ScannerAssetsCommand> for AssetsOptions {
+    fn from(args: ScannerAssetsCommand) -> Self {
+        AssetsOptions::builder()
+            .shielded_addresses(args.shielded_address.unwrap_or_default())
             .build()
     }
 }

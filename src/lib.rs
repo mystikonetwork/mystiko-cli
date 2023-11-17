@@ -18,9 +18,12 @@ use mystiko_protos::core::handler::v1::{
     QuoteDepositOptions, SendDepositOptions, UpdateAccountOptions,
 };
 use mystiko_protos::core::scanner::v1::{
-    BalanceOptions, BalanceResult, ResetOptions, ResetResult, ScanOptions, ScanResult,
+    AssetsOptions, BalanceOptions, BalanceResult, ChainAssetsResult, ResetOptions, ResetResult,
+    ScanOptions, ScanResult,
 };
-use mystiko_protos::core::synchronizer::v1::{SyncOptions, SynchronizerStatus};
+use mystiko_protos::core::synchronizer::v1::{
+    ResetOptions as SynchronizerResetOptions, SyncOptions, SynchronizerStatus,
+};
 use mystiko_storage::{SqlStatementFormatter, StatementFormatter, Storage};
 use mystiko_storage_sqlite::SqliteStorage;
 use serde::Serialize;
@@ -66,7 +69,7 @@ where
         DepositSummary,
         SendDepositOptions,
     >,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus>,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     R: ScannerHandler<
         ScanOptions,
         ScanResult,
@@ -74,6 +77,8 @@ where
         ResetResult,
         BalanceOptions,
         BalanceResult,
+        AssetsOptions,
+        ChainAssetsResult,
     >,
     MystikoCliError:
         From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error> + From<R::Error>,

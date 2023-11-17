@@ -62,7 +62,7 @@ async fn test_synchronizer_sync() {
         "5000",
         "--validator-validate-concurrency",
         "2",
-        "--chain-ids",
+        "--chain-id",
         "56",
     ]);
     mystiko::execute_with_mystiko(&mystiko, args.commands, false)
@@ -87,6 +87,46 @@ async fn test_synchronizer_status() {
     let mystiko = mock_mystiko(synchronizer).await;
     let args =
         MystikoCliArgs::parse_from(["mystiko", "synchronizer", "status", "--with-contracts"]);
+    mystiko::execute_with_mystiko(&mystiko, args.commands, false)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn test_synchronizer_reset() {
+    let mut synchronizer = MockSynchronizer::new();
+    synchronizer
+        .expect_reset()
+        .withf(|options| {
+            options.chains.len() == 1
+                && options.chains[0].chain_id == 1
+                && options.chains[0].contract_addresses == ["0x1234"]
+                && options.chains[0].block_number == Some(10000001_u64)
+        })
+        .returning(|_| Ok(()));
+    synchronizer
+        .expect_status()
+        .withf(|with_contracts| *with_contracts)
+        .returning(|_| {
+            Ok(SynchronizerStatus::builder()
+                .chains(vec![ChainStatus::builder()
+                    .chain_id(1_u64)
+                    .synced_block(10000001_u64)
+                    .build()])
+                .build())
+        });
+    let mystiko = mock_mystiko(synchronizer).await;
+    let args = MystikoCliArgs::parse_from([
+        "mystiko",
+        "synchronizer",
+        "reset",
+        "--chain-id",
+        "1",
+        "--contract-address",
+        "0x1234",
+        "--to",
+        "10000001",
+    ]);
     mystiko::execute_with_mystiko(&mystiko, args.commands, false)
         .await
         .unwrap();
