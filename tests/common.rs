@@ -10,7 +10,7 @@ use mystiko_protos::core::handler::v1::{
     CreateDepositOptions, DepositQuote, DepositSummary, QuoteDepositOptions, SendDepositOptions,
 };
 use mystiko_protos::core::scanner::v1::{
-    AssetsOptions, BalanceOptions, BalanceResult, ChainAssetsResult, ResetOptions, ResetResult,
+    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetOptions, ResetResult,
     ScanOptions, ScanResult,
 };
 use mystiko_protos::core::synchronizer::v1::{
@@ -165,14 +165,14 @@ mock! {
         BalanceOptions,
         BalanceResult,
         AssetsOptions,
-        ChainAssetsResult,
+        AssetsByChain,
     > for Scanner {
         type Error = anyhow::Error;
         async fn scan(&self, options: ScanOptions) -> anyhow::Result<ScanResult>;
         async fn reset(&self, options: ResetOptions) -> anyhow::Result<ResetResult>;
         async fn balance(&self, options: BalanceOptions) -> anyhow::Result<BalanceResult>;
-        async fn assets(&self, options: AssetsOptions) -> anyhow::Result<Vec<ChainAssetsResult>>;
-        async fn chain_assets(&self, chain_id: u64, options: AssetsOptions) -> anyhow::Result<ChainAssetsResult>;
+        async fn assets(&self, options: AssetsOptions) -> anyhow::Result<Vec<AssetsByChain>>;
+        async fn chain_assets(&self, chain_id: u64, options: AssetsOptions) -> anyhow::Result<Option<AssetsByChain>>;
     }
 }
 

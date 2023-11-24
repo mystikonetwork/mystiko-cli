@@ -18,7 +18,7 @@ use mystiko_protos::core::handler::v1::{
     QuoteDepositOptions, SendDepositOptions, UpdateAccountOptions,
 };
 use mystiko_protos::core::scanner::v1::{
-    AssetsOptions, BalanceOptions, BalanceResult, ChainAssetsResult, ResetOptions, ResetResult,
+    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetOptions, ResetResult,
     ScanOptions, ScanResult,
 };
 use mystiko_protos::core::synchronizer::v1::{
@@ -78,7 +78,7 @@ where
         BalanceOptions,
         BalanceResult,
         AssetsOptions,
-        ChainAssetsResult,
+        AssetsByChain,
     >,
     MystikoCliError:
         From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error> + From<R::Error>,
