@@ -142,10 +142,7 @@ async fn test_deposit_list() {
         SubFilter::in_list(DepositColumn::BridgeType, vec![BridgeType::Tbridge as i32]),
         SubFilter::in_list(DepositColumn::Status, vec![DepositStatus::Queued as i32]),
         SubFilter::in_list(DepositColumn::CommitmentHash, vec![String::from("0x7890")]),
-        SubFilter::in_list(
-            DepositColumn::ShieldedRecipientAddress,
-            vec![String::from("0x1234")],
-        ),
+        SubFilter::in_list(DepositColumn::ShieldedAddress, vec![String::from("0x1234")]),
     ];
     let order_by = OrderBy::builder()
         .order(Order::Asc)

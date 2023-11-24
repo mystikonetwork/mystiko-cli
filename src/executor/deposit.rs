@@ -190,7 +190,7 @@ where
     if let Some(shielded_addresses) = args.shielded_address {
         if !shielded_addresses.is_empty() {
             sub_filters.push(SubFilter::in_list(
-                DepositColumn::ShieldedRecipientAddress,
+                DepositColumn::ShieldedAddress,
                 shielded_addresses,
             ));
         }
