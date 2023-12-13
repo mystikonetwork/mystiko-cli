@@ -59,7 +59,7 @@ async fn test_deposit_create() {
                 && options.dst_chain_id() == 5_u64
                 && options.shielded_address == "Shielded_Address"
                 && options.amount == 123.0_f64
-                && options.rollup_fee_amount == 0.01_f64
+                && options.rollup_fee_amount() == 0.01_f64
                 && options.bridge_fee_amount() == 0.02_f64
                 && options.executor_fee_amount() == 0.03_f64
                 && options.query_timeout_ms() == 1000_u64
@@ -100,11 +100,11 @@ async fn test_deposit_create() {
         "Shielded_Address",
         "--amount",
         "123",
-        "--rollup-fee-amount",
+        "--rollup-fee",
         "0.01",
-        "--bridge-fee-amount",
+        "--bridge-fee",
         "0.02",
-        "--executor-fee-amount",
+        "--executor-fee",
         "0.03",
         "--private-key",
         "private_key",

@@ -9,13 +9,14 @@ pub use executor::*;
 use log::LevelFilter;
 use mystiko_core::{
     AccountHandler, Database, DepositHandler, Mystiko, MystikoOptions, ScannerHandler,
-    SynchronizerHandler, WalletHandler,
+    SpendHandler, SynchronizerHandler, WalletHandler,
 };
 use mystiko_protos::common::v1::ConfigOptions;
-use mystiko_protos::core::document::v1::{Account, Deposit, Wallet};
+use mystiko_protos::core::document::v1::{Account, Deposit, Spend, Wallet};
 use mystiko_protos::core::handler::v1::{
-    CreateAccountOptions, CreateDepositOptions, CreateWalletOptions, DepositQuote, DepositSummary,
-    QuoteDepositOptions, SendDepositOptions, UpdateAccountOptions,
+    CreateAccountOptions, CreateDepositOptions, CreateSpendOptions, CreateWalletOptions,
+    DepositQuote, DepositSummary, QuoteDepositOptions, QuoteSpendOptions, SendDepositOptions,
+    SendSpendOptions, SpendQuote, SpendSummary, UpdateAccountOptions,
 };
 use mystiko_protos::core::scanner::v1::{
     AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetOptions, ResetResult,
@@ -24,6 +25,7 @@ use mystiko_protos::core::scanner::v1::{
 use mystiko_protos::core::synchronizer::v1::{
     ResetOptions as SynchronizerResetOptions, SyncOptions, SynchronizerStatus,
 };
+use mystiko_static_cache::{FileStaticCache, StaticCache};
 use mystiko_storage::{SqlStatementFormatter, StatementFormatter, Storage};
 use mystiko_storage_sqlite::SqliteStorage;
 use serde::Serialize;
@@ -37,6 +39,7 @@ pub async fn execute(
         .filter_module("mystiko_core", args.logging_level.parse::<LevelFilter>()?)
         .try_init();
     let database = create_database(args.clone()).await?;
+    let static_cache = FileStaticCache::new(static_cache_path(&args)).await?;
     let config_options = ConfigOptions::builder()
         .is_testnet(args.testnet)
         .is_staging(args.staging)
@@ -45,14 +48,15 @@ pub async fn execute(
         .build();
     let options = MystikoOptions::builder()
         .config_options(config_options)
+        .static_cache(Box::new(static_cache) as Box<dyn StaticCache>)
         .build();
     let mystiko = Mystiko::new(database, Some(options)).await?;
     execute_with_mystiko(&mystiko, args.commands, args.compact_json).await?;
     Ok(mystiko)
 }
 
-pub async fn execute_with_mystiko<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_with_mystiko<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     commands: MystikoCommands,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -69,6 +73,14 @@ where
         DepositSummary,
         SendDepositOptions,
     >,
+    X: SpendHandler<
+        Spend,
+        QuoteSpendOptions,
+        SpendQuote,
+        CreateSpendOptions,
+        SpendSummary,
+        SendSpendOptions,
+    >,
     Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     R: ScannerHandler<
         ScanOptions,
@@ -80,28 +92,36 @@ where
         AssetsOptions,
         AssetsByChain,
     >,
-    MystikoCliError:
-        From<W::Error> + From<A::Error> + From<D::Error> + From<Y::Error> + From<R::Error>,
+    MystikoCliError: From<W::Error>
+        + From<A::Error>
+        + From<D::Error>
+        + From<X::Error>
+        + From<Y::Error>
+        + From<R::Error>,
 {
     match commands {
         MystikoCommands::Wallet(wallet_args) => {
-            execute_wallet_command::<F, S, W, A, D, Y, R>(mystiko, wallet_args, compact_json)
+            execute_wallet_command::<F, S, W, A, D, X, Y, R>(mystiko, wallet_args, compact_json)
                 .await?
         }
         MystikoCommands::Account(account_args) => {
-            execute_account_command::<F, S, W, A, D, Y, R>(mystiko, account_args, compact_json)
+            execute_account_command::<F, S, W, A, D, X, Y, R>(mystiko, account_args, compact_json)
                 .await?
         }
         MystikoCommands::Deposit(deposit_args) => {
-            execute_deposit_command::<F, S, W, A, D, Y, R>(mystiko, deposit_args, compact_json)
+            execute_deposit_command::<F, S, W, A, D, X, Y, R>(mystiko, deposit_args, compact_json)
+                .await?
+        }
+        MystikoCommands::Spend(spend_args) => {
+            execute_spend_command::<F, S, W, A, D, X, Y, R>(mystiko, spend_args, compact_json)
                 .await?
         }
         MystikoCommands::Scanner(scanner_args) => {
-            execute_scanner_command::<F, S, W, A, D, Y, R>(mystiko, scanner_args, compact_json)
+            execute_scanner_command::<F, S, W, A, D, X, Y, R>(mystiko, scanner_args, compact_json)
                 .await?
         }
         MystikoCommands::Synchronizer(synchronizer_args) => {
-            execute_synchronizer::<F, S, W, A, D, Y, R>(mystiko, synchronizer_args, compact_json)
+            execute_synchronizer::<F, S, W, A, D, X, Y, R>(mystiko, synchronizer_args, compact_json)
                 .await?
         }
     }
@@ -138,4 +158,15 @@ async fn create_database(
         SqliteStorage::from_path(db_path.to_string_lossy()).await?
     };
     Ok(Database::new(SqlStatementFormatter::sqlite(), storage))
+}
+
+fn static_cache_path(args: &MystikoCliArgs) -> PathBuf {
+    let default_db_path = dirs::home_dir()
+        .unwrap_or(PathBuf::from(""))
+        .join(".mystiko")
+        .join("cache");
+    args.static_cache_path
+        .as_ref()
+        .map(PathBuf::from)
+        .unwrap_or(default_db_path)
 }

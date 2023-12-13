@@ -12,8 +12,8 @@ use mystiko_protos::storage::v1::{
     Condition, ConditionOperator, Order, OrderBy, QueryFilter, SubFilter,
 };
 use mystiko_storage::{DocumentColumn, StatementFormatter, Storage};
-pub async fn execute_deposit_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_deposit_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: DepositCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -43,8 +43,8 @@ where
     }
 }
 
-pub async fn execute_deposit_quote_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_deposit_quote_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: DepositQuoteCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -65,8 +65,8 @@ where
     print_json(&quote, compact_json)
 }
 
-pub async fn execute_deposit_create_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_deposit_create_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: DepositCreateCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -98,8 +98,8 @@ where
     print_json(&deposit, compact_json)
 }
 
-pub async fn execute_deposit_list_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_deposit_list_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: DepositListCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -195,22 +195,33 @@ where
             ));
         }
     }
-    let limit = args.limit.max(1_u64);
-    let page = args.page.max(1_u64);
+
+    let deposits = mystiko
+        .deposits
+        .find(create_list_filter(sub_filters, args.limit, args.page))
+        .await?;
+    for deposit in deposits.into_iter() {
+        print_json(&deposit, compact_json)?;
+    }
+    Ok(())
+}
+
+pub(crate) fn create_list_filter(
+    sub_filters: Vec<SubFilter>,
+    limit: u64,
+    page: u64,
+) -> QueryFilter {
+    let limit = limit.max(1_u64);
+    let page = page.max(1_u64);
     let order_by = OrderBy::builder()
         .order(Order::Asc)
         .columns(vec![DocumentColumn::Id.to_string()])
         .build();
-    let filter = QueryFilter::builder()
+    QueryFilter::builder()
         .conditions(vec![Condition::from(sub_filters)])
         .conditions_operator(ConditionOperator::And)
         .limit(limit)
         .offset((page - 1) * limit)
         .order_by(order_by)
-        .build();
-    let deposits = mystiko.deposits.find(filter).await?;
-    for deposit in deposits.into_iter() {
-        print_json(&deposit, compact_json)?;
-    }
-    Ok(())
+        .build()
 }
