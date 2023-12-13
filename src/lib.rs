@@ -165,7 +165,7 @@ async fn create_mystiko(
     args: &MystikoCliArgs,
 ) -> Result<Mystiko<SqlStatementFormatter, SqliteStorage>, MystikoCliError> {
     let database = create_database(args.clone()).await?;
-    let static_cache = FileStaticCache::new(static_cache_path(&args)).await?;
+    let static_cache = FileStaticCache::new(static_cache_path(args)).await?;
     let config_options = ConfigOptions::builder()
         .is_testnet(args.testnet)
         .is_staging(args.staging)
