@@ -36,24 +36,50 @@ setup_path() {
 }
 
 install() {
-  local base_url=$1
+  local base_url
+  local binary_path
+  local git_revision
+
+  while [[ "$#" -gt 0 ]]; do
+    case $1 in
+      -b|--base-url)
+        base_url="$2"
+        shift
+        ;;
+      -p|--binary-path)
+        binary_path="$2"
+        shift
+        ;;
+      -r|--git-revision)
+        git_revision="$2"
+        shift
+        ;;
+      *)
+        echo "Unknown parameter passed: $1"
+        exit 1
+        ;;
+    esac
+    shift
+  done
+
   if [ -z "${base_url}" ]; then
     base_url="https://static.mystiko.network/cli"
   fi
 
-  local binary_path=$2
   if [ -z "${binary_path}" ]; then
     binary_path="${HOME}/.mystiko/bin"
   fi
+
   if [ ! -d "${binary_path}" ]; then
     mkdir -p "${binary_path}"
   fi
 
-  local latest_url="${base_url}/latest"
-  echo "Fetching latest version from ${latest_url}"
-  local git_revision
-  git_revision=$(curl -sfLS "${latest_url}")
-  echo "Latest version is ${git_revision}"
+  if [ -z "${git_revision}" ]; then
+    local latest_url="${base_url}/latest"
+    echo "Fetching latest version from ${latest_url}"
+    git_revision=$(curl -sfLS "${latest_url}")
+    echo "Latest version is ${git_revision}"
+  fi
 
   local os
   os=$(uname -s | tr '[:upper:]' '[:lower:]')
@@ -64,10 +90,10 @@ install() {
     linux)
       case "${arch}" in
         x86_64)
-          download_binary "${base_url}" "${git_revision}" "${os}" "mystiko" "${binary_path}"
+          download_binary "${base_url}" "${git_revision}" "x86_64-unknown-linux-gnu" "mystiko" "${binary_path}"
           ;;
         arm64)
-          download_binary "${base_url}" "${git_revision}" "${os}" "mystiko" "${binary_path}"
+          download_binary "${base_url}" "${git_revision}" "aarch64-unknown-linux-gnu" "mystiko" "${binary_path}"
           ;;
         *)
           echo "Unsupported arch: ${arch}"
@@ -78,10 +104,10 @@ install() {
     darwin)
       case "${arch}" in
         x86_64)
-          download_binary "${base_url}" "${git_revision}" "${os}" "mystiko" "${binary_path}"
+          download_binary "${base_url}" "${git_revision}" "x86_64-apple-darwin" "mystiko" "${binary_path}"
           ;;
         arm64)
-          download_binary "${base_url}" "${git_revision}" "${os}" "mystiko" "${binary_path}"
+          download_binary "${base_url}" "${git_revision}" "aarch64-apple-darwin" "mystiko" "${binary_path}"
           ;;
         *)
           echo "Unsupported arch: ${arch}"

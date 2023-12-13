@@ -18,7 +18,7 @@ jobs:
             "x86_64-unknown-linux-gnu",
             "aarch64-unknown-linux-gnu",
           ]
-    runs-on: [self-hosted, linux, X64]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,6 +37,15 @@ jobs:
             ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_PROTOS }}
             ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_PROTOCOL }}
 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: pip install -r publish/requirements.txt
+
       - name: Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -54,11 +63,13 @@ jobs:
       - name: Build
         run: cross build --target ${{ matrix.targets }} --release
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.targets }}-binary
-          path: target/${{ matrix.targets }}/release/mystiko
+      - name: Upload Binary
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run:
+          export GIT_REVISION=$(git rev-parse --short HEAD)
+          python3 publish/publish_binary.py target/${{ matrix.targets }}/release/mystiko ${{ matrix.targets }} $GIT_REVISION
 
       - name: Telegram Failure Notification
         uses: appleboy/telegram-action@master
@@ -91,23 +102,23 @@ jobs:
       - name: Install Python Dependencies
         run: pip install -r publish/requirements.txt
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ matrix.targets }}-binary
-          path: target/${{ matrix.targets }}/release/mystiko
-
       - name: Publish
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           export GIT_REVISION=$(git rev-parse --short HEAD)
-          python3 publish/publish_binary.py target/x86_64-apple-darwin/release/mystiko x86_64-apple-darwin $GIT_REVISION
-          python3 publish/publish_binary.py target/aarch64-apple-darwin/release/mystiko aarch64-apple-darwin $GIT_REVISION
-          python3 publish/publish_binary.py target/x86_64-unknown-linux-gnu/release/mystiko x86_64-unknown-linux-gnu $GIT_REVISION
-          python3 publish/publish_binary.py target/aarch64-unknown-linux-gnu/release/mystiko aarch64-unknown-linux-gnu $GIT_REVISION
           python3 publish/publish_index.py $GIT_REVISION
+          python3 publish/publish_script.py publish/install.sh
+
+      - name: Telegram Success Notification
+        uses: appleboy/telegram-action@master
+        if: success()
+        with:
+          message: Release succeeded for [${{ github.repository }}](https://github.com/${{ github.repository }}/actions)
+          format: markdown
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
       - name: Telegram Failure Notification
         uses: appleboy/telegram-action@master
