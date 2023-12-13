@@ -47,6 +47,8 @@ pub struct MystikoCliArgs {
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum MystikoCommands {
+    #[command(about = "about command for displaying the build information")]
+    About,
     #[command(about = "wallet command for managing the mystiko wallet")]
     Wallet(WalletCommand),
     #[command(about = "account command for managing accounts")]

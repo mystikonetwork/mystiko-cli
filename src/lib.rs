@@ -1,7 +1,9 @@
+mod about;
 mod args;
 mod error;
 mod executor;
 
+pub use about::*;
 pub use args::*;
 pub use error::*;
 pub use executor::*;
@@ -31,28 +33,17 @@ use mystiko_storage_sqlite::SqliteStorage;
 use serde::Serialize;
 use std::path::PathBuf;
 
-pub async fn execute(
-    args: MystikoCliArgs,
-) -> Result<Mystiko<SqlStatementFormatter, SqliteStorage>, MystikoCliError> {
-    let _ = env_logger::builder()
-        .filter_module("", args.extern_logging_level.parse::<LevelFilter>()?)
-        .filter_module("mystiko_core", args.logging_level.parse::<LevelFilter>()?)
-        .try_init();
-    let database = create_database(args.clone()).await?;
-    let static_cache = FileStaticCache::new(static_cache_path(&args)).await?;
-    let config_options = ConfigOptions::builder()
-        .is_testnet(args.testnet)
-        .is_staging(args.staging)
-        .git_revision(args.config_git_revision)
-        .file_path(args.config_path)
-        .build();
-    let options = MystikoOptions::builder()
-        .config_options(config_options)
-        .static_cache(Box::new(static_cache) as Box<dyn StaticCache>)
-        .build();
-    let mystiko = Mystiko::new(database, Some(options)).await?;
-    execute_with_mystiko(&mystiko, args.commands, args.compact_json).await?;
-    Ok(mystiko)
+pub async fn execute(args: MystikoCliArgs) -> Result<(), MystikoCliError> {
+    if let MystikoCommands::About = args.commands {
+        print_json(&AboutInfo::default(), false)
+    } else {
+        let _ = env_logger::builder()
+            .filter_module("", args.extern_logging_level.parse::<LevelFilter>()?)
+            .filter_module("mystiko_core", args.logging_level.parse::<LevelFilter>()?)
+            .try_init();
+        let mystiko = create_mystiko(&args).await?;
+        execute_with_mystiko(&mystiko, args.commands, args.compact_json).await
+    }
 }
 
 pub async fn execute_with_mystiko<F, S, W, A, D, X, Y, R>(
@@ -102,30 +93,29 @@ where
     match commands {
         MystikoCommands::Wallet(wallet_args) => {
             execute_wallet_command::<F, S, W, A, D, X, Y, R>(mystiko, wallet_args, compact_json)
-                .await?
+                .await
         }
         MystikoCommands::Account(account_args) => {
             execute_account_command::<F, S, W, A, D, X, Y, R>(mystiko, account_args, compact_json)
-                .await?
+                .await
         }
         MystikoCommands::Deposit(deposit_args) => {
             execute_deposit_command::<F, S, W, A, D, X, Y, R>(mystiko, deposit_args, compact_json)
-                .await?
+                .await
         }
         MystikoCommands::Spend(spend_args) => {
-            execute_spend_command::<F, S, W, A, D, X, Y, R>(mystiko, spend_args, compact_json)
-                .await?
+            execute_spend_command::<F, S, W, A, D, X, Y, R>(mystiko, spend_args, compact_json).await
         }
         MystikoCommands::Scanner(scanner_args) => {
             execute_scanner_command::<F, S, W, A, D, X, Y, R>(mystiko, scanner_args, compact_json)
-                .await?
+                .await
         }
         MystikoCommands::Synchronizer(synchronizer_args) => {
             execute_synchronizer::<F, S, W, A, D, X, Y, R>(mystiko, synchronizer_args, compact_json)
-                .await?
+                .await
         }
+        _ => Ok(()),
     }
-    Ok(())
 }
 
 pub fn print_json<T: Serialize>(value: &T, compact: bool) -> Result<(), MystikoCliError> {
@@ -169,4 +159,22 @@ fn static_cache_path(args: &MystikoCliArgs) -> PathBuf {
         .as_ref()
         .map(PathBuf::from)
         .unwrap_or(default_db_path)
+}
+
+async fn create_mystiko(
+    args: &MystikoCliArgs,
+) -> Result<Mystiko<SqlStatementFormatter, SqliteStorage>, MystikoCliError> {
+    let database = create_database(args.clone()).await?;
+    let static_cache = FileStaticCache::new(static_cache_path(args)).await?;
+    let config_options = ConfigOptions::builder()
+        .is_testnet(args.testnet)
+        .is_staging(args.staging)
+        .git_revision(args.config_git_revision.clone())
+        .file_path(args.config_path.clone())
+        .build();
+    let options = MystikoOptions::builder()
+        .config_options(config_options)
+        .static_cache(Box::new(static_cache) as Box<dyn StaticCache>)
+        .build();
+    Ok(Mystiko::new(database, Some(options)).await?)
 }

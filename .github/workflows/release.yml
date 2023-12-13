@@ -1,0 +1,128 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        targets:
+          [
+            "x86_64-apple-darwin",
+            "aarch64-apple-darwin",
+            "x86_64-unknown-linux-gnu",
+            "aarch64-unknown-linux-gnu",
+          ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PACKAGES_TOKEN }}
+          lfs: true
+          submodules: recursive
+          persist-credentials: false
+
+      - name: SSH Agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_RUST }}
+            ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_CIRCUITS }}
+            ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_PROTOS }}
+            ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_PROTOCOL }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: pip install -r publish/requirements.txt
+
+      - name: Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build
+        run: cross build --target ${{ matrix.targets }} --release
+
+      - name: Upload Binary
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          export GIT_REVISION=$(git rev-parse --short HEAD)
+          python3 publish/publish_binary.py target/${{ matrix.targets }}/release/mystiko ${{ matrix.targets }} $GIT_REVISION
+
+      - name: Telegram Failure Notification
+        uses: appleboy/telegram-action@master
+        if: failure()
+        with:
+          message: ❗ Release failed for [${{ github.repository }}](https://github.com/${{ github.repository }}/actions) because of ${{ github.actor }}
+          format: markdown
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PACKAGES_TOKEN }}
+          lfs: true
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: pip install -r publish/requirements.txt
+
+      - name: Publish
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          export GIT_REVISION=$(git rev-parse --short HEAD)
+          python3 publish/publish_index.py $GIT_REVISION
+          python3 publish/publish_script.py publish/install.sh
+
+      - name: Telegram Success Notification
+        uses: appleboy/telegram-action@master
+        if: success()
+        with:
+          message: Release succeeded for [${{ github.repository }}](https://github.com/${{ github.repository }}/actions)
+          format: markdown
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: Telegram Failure Notification
+        uses: appleboy/telegram-action@master
+        if: failure()
+        with:
+          message: ❗ Release failed for [${{ github.repository }}](https://github.com/${{ github.repository }}/actions) because of ${{ github.actor }}
+          format: markdown
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
