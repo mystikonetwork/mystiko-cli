@@ -67,7 +67,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run:
+        run: |
           export GIT_REVISION=$(git rev-parse --short HEAD)
           python3 publish/publish_binary.py target/${{ matrix.targets }}/release/mystiko ${{ matrix.targets }} $GIT_REVISION
 

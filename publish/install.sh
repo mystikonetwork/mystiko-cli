@@ -19,20 +19,24 @@ download_binary() {
 setup_path() {
   local bin_dir=$1
   local export_path="export PATH=\$PATH:${bin_dir}"
-  case "${SHELL}" in
-    /bin/bash)
-      echo "${export_path}" >> "${HOME}/.bashrc"
-      source "${HOME}/.bashrc"
-      ;;
-    /bin/zsh)
-      echo "${export_path}" >> "${HOME}/.zshrc"
-      ;;
-    *)
-      echo "Unsupported shell: ${SHELL}"
-      source "${HOME}/.bashrc"
-      exit 1
-      ;;
-  esac
+  if ! type "mystiko" > /dev/null 2>&1; then
+    if [[ ":${PATH}:" != *":${bin_dir}:"* ]]; then
+      case "${SHELL}" in
+        /bin/bash)
+          echo "${export_path}" >> "${HOME}/.bashrc"
+          source "${HOME}/.bashrc"
+          ;;
+        /bin/zsh)
+          echo "${export_path}" >> "${HOME}/.zshrc"
+          ;;
+        *)
+          echo "Unsupported shell: ${SHELL}"
+          source "${HOME}/.bashrc"
+          exit 1
+          ;;
+      esac
+    fi
+  fi
 }
 
 install() {
