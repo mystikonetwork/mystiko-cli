@@ -21,6 +21,7 @@ setup_path() {
   local export_path="export PATH=\$PATH:${bin_dir}"
   if ! type "mystiko" > /dev/null 2>&1; then
     if [[ ":${PATH}:" != *":${bin_dir}:"* ]]; then
+      echo "Adding ${bin_dir} to PATH"
       case "${SHELL}" in
         /bin/bash)
           echo "${export_path}" >> "${HOME}/.bashrc"

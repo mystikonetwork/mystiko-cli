@@ -11,7 +11,7 @@ def publish_binary(script_path, aws_region, s3_bucket, s3_prefix):
     client = boto3.client('s3', region_name=aws_region)
     script_name = os.path.basename(script_path)
     s3_path = f'{s3_prefix}/scripts/{script_name}'
-    upload_args = {'ACL': 'public-read', 'CacheControl': 'no-cache'}
+    upload_args = {'ACL': 'public-read', 'CacheControl': 'no-cache', 'ContentType': 'text/plain'}
     print(f'Uploading {script_path} to s3://{s3_bucket}/{s3_path} with args {upload_args}')
     client.upload_file(script_path, Bucket=s3_bucket, Key=s3_path, ExtraArgs=upload_args)
     print(f'Uploaded {script_path} to s3://{s3_bucket}/{s3_path}')
