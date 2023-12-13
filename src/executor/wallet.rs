@@ -7,8 +7,8 @@ use mystiko_protos::core::document::v1::Wallet;
 use mystiko_protos::core::handler::v1::CreateWalletOptions;
 use mystiko_storage::{StatementFormatter, Storage};
 
-pub async fn execute_wallet_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_wallet_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: WalletCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -31,8 +31,8 @@ where
     }
 }
 
-pub async fn execute_wallet_create_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_wallet_create_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: WalletCreateCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -49,8 +49,8 @@ where
     print_json(&wallet, compact_json)
 }
 
-pub async fn execute_wallet_import_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_wallet_import_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: WalletImportCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -68,8 +68,8 @@ where
     print_json(&wallet, compact_json)
 }
 
-pub async fn execute_wallet_export_mnemonic_phrase_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_wallet_export_mnemonic_phrase_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: WalletExportMnemonicPhraseCommand,
 ) -> Result<(), MystikoCliError>
 where

@@ -11,6 +11,8 @@ pub enum MystikoCliError {
     #[error(transparent)]
     DepositsError(#[from] mystiko_core::DepositsError),
     #[error(transparent)]
+    SpendsError(#[from] mystiko_core::SpendsError),
+    #[error(transparent)]
     ScannerError(#[from] mystiko_core::ScannerError),
     #[error(transparent)]
     SynchronizerError(#[from] mystiko_core::SynchronizerError),

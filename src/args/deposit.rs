@@ -44,15 +44,15 @@ pub struct DepositCreateCommand {
     #[arg(long, help = "shielded_address for the deposit")]
     pub shielded_address: String,
     #[arg(long, help = "rollup_fee_amount for the deposit")]
-    pub rollup_fee_amount: f64,
+    pub rollup_fee: Option<f64>,
     #[arg(long, help = "private key for signing the transaction")]
     pub private_key: String,
     #[arg(long, help = "dst_chain_id for the cross-chain deposit")]
     pub dst_chain_id: Option<u64>,
     #[arg(long, help = "bridge_fee_amount for the cross-chain deposit")]
-    pub bridge_fee_amount: Option<f64>,
+    pub bridge_fee: Option<f64>,
     #[arg(long, help = "executor_fee_amount for the cross-chain deposit")]
-    pub executor_fee_amount: Option<f64>,
+    pub executor_fee: Option<f64>,
     #[arg(long, help = "bridge_type for the cross-chain deposit")]
     pub bridge_type: Option<String>,
     #[arg(long, help = "timeout in milliseconds for the querying provider")]
@@ -144,12 +144,12 @@ impl From<DepositCreateCommand> for CreateDepositOptions {
             .chain_id(args.chain_id)
             .asset_symbol(args.asset_symbol)
             .amount(args.amount)
-            .rollup_fee_amount(args.rollup_fee_amount)
+            .rollup_fee_amount(args.rollup_fee)
             .shielded_address(args.shielded_address)
             .dst_chain_id(args.dst_chain_id)
             .bridge_type(bridge_type)
-            .bridge_fee_amount(args.bridge_fee_amount)
-            .executor_fee_amount(args.executor_fee_amount)
+            .bridge_fee_amount(args.bridge_fee)
+            .executor_fee_amount(args.executor_fee)
             .query_timeout_ms(args.query_timeout_ms)
             .build()
     }

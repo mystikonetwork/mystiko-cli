@@ -7,8 +7,8 @@ use mystiko_protos::core::document::v1::Account;
 use mystiko_protos::core::handler::v1::{CreateAccountOptions, UpdateAccountOptions};
 use mystiko_storage::{StatementFormatter, Storage};
 
-pub async fn execute_account_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_account_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: AccountCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -32,8 +32,8 @@ where
     }
 }
 
-pub async fn execute_account_create_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_account_create_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: AccountCreateCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -51,8 +51,8 @@ where
     print_json(&account, compact_json)
 }
 
-pub async fn execute_account_import_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_account_import_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: AccountImportCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -71,8 +71,8 @@ where
     print_json(&account, compact_json)
 }
 
-pub async fn execute_account_export_secret_key_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_account_export_secret_key_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: AccountExportSecretKeyCommand,
 ) -> Result<(), MystikoCliError>
 where
@@ -89,8 +89,8 @@ where
     Ok(())
 }
 
-pub async fn execute_account_list_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_account_list_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
 where

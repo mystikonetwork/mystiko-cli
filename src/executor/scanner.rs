@@ -9,8 +9,8 @@ use mystiko_protos::core::scanner::v1::{
 };
 use mystiko_storage::{StatementFormatter, Storage};
 
-pub async fn execute_scanner_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_scanner_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: ScannerCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -45,8 +45,8 @@ where
     }
 }
 
-pub async fn execute_scanner_scan_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_scanner_scan_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: ScannerScanCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -69,8 +69,8 @@ where
     print_json(&result, compact_json)
 }
 
-pub async fn execute_scanner_reset_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_scanner_reset_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: ScannerResetCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -93,8 +93,8 @@ where
     print_json(&result, compact_json)
 }
 
-pub async fn execute_scanner_balance_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_scanner_balance_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: ScannerBalanceCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>
@@ -117,8 +117,8 @@ where
     print_json(&result, compact_json)
 }
 
-pub async fn execute_scanner_assets_command<F, S, W, A, D, Y, R>(
-    mystiko: &Mystiko<F, S, W, A, D, Y, R>,
+pub async fn execute_scanner_assets_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: ScannerAssetsCommand,
     compact_json: bool,
 ) -> Result<(), MystikoCliError>

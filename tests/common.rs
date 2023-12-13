@@ -2,12 +2,13 @@ use async_trait::async_trait;
 use mockall::mock;
 use mystiko_core::{
     Accounts, Database, DepositHandler, FromContext, Mystiko, MystikoContext, MystikoError,
-    MystikoOptions, ScannerHandler, SynchronizerHandler, TransactionSigner, Wallets,
+    MystikoOptions, ScannerHandler, SpendHandler, SynchronizerHandler, TransactionSigner, Wallets,
 };
 use mystiko_protos::common::v1::ConfigOptions;
-use mystiko_protos::core::document::v1::Deposit;
+use mystiko_protos::core::document::v1::{Deposit, Spend};
 use mystiko_protos::core::handler::v1::{
-    CreateDepositOptions, DepositQuote, DepositSummary, QuoteDepositOptions, SendDepositOptions,
+    CreateDepositOptions, CreateSpendOptions, DepositQuote, DepositSummary, QuoteDepositOptions,
+    QuoteSpendOptions, SendDepositOptions, SendSpendOptions, SpendQuote, SpendSummary,
 };
 use mystiko_protos::core::scanner::v1::{
     AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetOptions, ResetResult,
@@ -61,6 +62,7 @@ where
             .await
             .unwrap(),
         deposits: mock_options.deposits,
+        spends: mock_options.spends,
         synchronizer: mock_options.synchronizer,
         scanner: mock_options.scanner,
     }
@@ -72,6 +74,7 @@ pub type MockMystiko = Mystiko<
     Wallets<SqlStatementFormatter, SqliteStorage>,
     Accounts<SqlStatementFormatter, SqliteStorage>,
     MockDeposits,
+    MockSpends,
     MockSynchronizer,
     MockScanner,
 >;
@@ -80,6 +83,7 @@ pub type MockMystiko = Mystiko<
 #[builder(field_defaults(default, setter(into)))]
 pub struct MockMystikoOptions {
     pub deposits: MockDeposits,
+    pub spends: MockSpends,
     pub scanner: MockScanner,
     pub synchronizer: MockSynchronizer,
 }
@@ -149,6 +153,75 @@ where
 impl From<MockDeposits> for MockMystikoOptions {
     fn from(value: MockDeposits) -> Self {
         MockMystikoOptions::builder().deposits(value).build()
+    }
+}
+
+mock! {
+    #[derive(Debug, Default)]
+    pub Spends {}
+
+    #[async_trait]
+    impl SpendHandler<
+        Spend,
+        QuoteSpendOptions,
+        SpendQuote,
+        CreateSpendOptions,
+        SpendSummary,
+        SendSpendOptions,
+    > for Spends {
+        type Error = anyhow::Error;
+
+        async fn quote(&self, options: QuoteSpendOptions) -> anyhow::Result<SpendQuote>;
+        async fn summary(&self, options: CreateSpendOptions) -> anyhow::Result<SpendSummary>;
+        async fn create(&self, options: CreateSpendOptions) -> anyhow::Result<Spend>;
+        async fn send(&self, options: SendSpendOptions) -> anyhow::Result<Spend>;
+        async fn send_with_signer<Signer>(&self, options: SendSpendOptions, signer: Arc<Signer>) -> anyhow::Result<Spend>
+        where
+            Signer: TransactionSigner + 'static;
+        async fn find<Filter>(&self, filter: Filter) -> anyhow::Result<Vec<Spend>>
+        where
+            Filter: Into<QueryFilter> + Send + Sync + 'static;
+        async fn find_all(&self) -> anyhow::Result<Vec<Spend>>;
+        async fn find_one<Filter>(&self, filter: Filter) -> anyhow::Result<Option<Spend>>
+        where
+            Filter: Into<QueryFilter> + Send + Sync + 'static;
+        async fn find_by_id(&self, id: String) -> anyhow::Result<Option<Spend>>;
+        async fn count<Filter>(&self, filter: Filter) -> anyhow::Result<u64>
+        where
+            Filter: Into<QueryFilter> + Send + Sync + 'static;
+        async fn count_all(&self) -> anyhow::Result<u64>;
+        async fn update(&self, spend: Spend) -> anyhow::Result<Spend>;
+        async fn update_batch(&self, spends: Vec<Spend>) -> anyhow::Result<Vec<Spend>>;
+        async fn update_by_filter<Filter, Values>(&self, column_values: Values, filter: Filter) -> anyhow::Result<()>
+        where
+            Filter: Into<QueryFilter> + Send + Sync + 'static,
+            Values: Into<ColumnValues> + Send + Sync + 'static;
+        async fn update_all<Values>(&self, column_values: Values) -> anyhow::Result<()>
+        where
+            Values: Into<ColumnValues> + Send + Sync + 'static;
+        async fn delete(&self, spend: Spend) -> anyhow::Result<()>;
+        async fn delete_batch(&self, spends: Vec<Spend>) -> anyhow::Result<()>;
+        async fn delete_by_filter<Filter>(&self, filter: Filter) -> anyhow::Result<()>
+        where
+            Filter: Into<QueryFilter> + Send + Sync + 'static;
+        async fn delete_all(&self) -> anyhow::Result<()>;
+    }
+}
+
+#[async_trait]
+impl<F, S> FromContext<F, S> for MockSpends
+where
+    F: StatementFormatter,
+    S: Storage,
+{
+    async fn from_context(_context: &MystikoContext<F, S>) -> Result<Self, MystikoError> {
+        Ok(MockSpends::new())
+    }
+}
+
+impl From<MockSpends> for MockMystikoOptions {
+    fn from(value: MockSpends) -> Self {
+        MockMystikoOptions::builder().spends(value).build()
     }
 }
 
