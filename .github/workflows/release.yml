@@ -1,0 +1,55 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+    branches:
+      - fitch-dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        targets:
+          [
+            "x86_64-apple-darwin",
+            "aarch64-apple-darwin",
+            "x86_64-unknown-linux-gnu",
+            "aarch64-unknown-linux-gnu",
+          ]
+    runs-on: [self-hosted, linux, X64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PACKAGES_TOKEN }}
+          lfs: true
+          submodules: recursive
+          persist-credentials: false
+
+      - name: SSH Agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_RUST }}
+            ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_CIRCUITS }}
+            ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_PROTOS }}
+            ${{ secrets.SSH_PRIVATE_KEY_MYSTIKO_PROTOCOL }}
+
+      - name: Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build
+        run: cross build --target ${{ matrix.targets }} --release

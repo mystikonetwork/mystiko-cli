@@ -1,0 +1,11 @@
+[target.x86_64-unknown-linux-gnu]
+image = "mystikonetwork/rust-builder:x86_64-unknown-linux-gnu-cross"
+
+[target.aarch64-unknown-linux-gnu]
+image = "mystikonetwork/rust-builder:aarch64-unknown-linux-gnu-cross"
+
+[target.aarch64-apple-darwin]
+image = "mystikonetwork/rust-builder:aarch64-apple-darwin-cross"
+
+[target.x86_64-apple-darwin]
+image = "mystikonetwork/rust-builder:x86_64-apple-darwin-cross"
