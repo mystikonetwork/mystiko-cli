@@ -74,3 +74,34 @@ async fn test_wallet_export_mnemonic_phrase() {
     ]);
     mystiko::execute(args).await.unwrap();
 }
+
+#[tokio::test]
+async fn test_wallet_update_password() {
+    let (_, db_path) = common::temp_db_path();
+    let args = MystikoCliArgs::parse_from([
+        "mystiko",
+        "--config-path",
+        "tests/files/config.json",
+        "--db-path",
+        &db_path,
+        "wallet",
+        "create",
+        "--password",
+        "VeryAwes0meP@ssw0rd",
+    ]);
+    mystiko::execute(args).await.unwrap();
+    let args = MystikoCliArgs::parse_from([
+        "mystiko",
+        "--config-path",
+        "tests/files/config.json",
+        "--db-path",
+        &db_path,
+        "wallet",
+        "update-password",
+        "--old",
+        "VeryAwes0meP@ssw0rd",
+        "--new",
+        "VeryAwes0meP@ssw0rd2",
+    ]);
+    mystiko::execute(args).await.unwrap();
+}

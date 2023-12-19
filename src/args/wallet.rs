@@ -14,6 +14,8 @@ pub enum WalletCommands {
     Import(WalletImportCommand),
     #[command(about = "get the current wallet")]
     ExportMnemonic(WalletExportMnemonicPhraseCommand),
+    #[command(about = "update the password for the current wallet")]
+    UpdatePassword(WalletUpdatePasswordCommand),
 }
 
 #[derive(Debug, Clone, Args)]
@@ -34,4 +36,12 @@ pub struct WalletImportCommand {
 pub struct WalletExportMnemonicPhraseCommand {
     #[arg(long, help = "password for wallet")]
     pub password: String,
+}
+
+#[derive(Debug, Clone, Args)]
+pub struct WalletUpdatePasswordCommand {
+    #[arg(long, help = "old password for wallet")]
+    pub old: String,
+    #[arg(long, help = "new password for wallet")]
+    pub new: String,
 }
