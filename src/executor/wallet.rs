@@ -1,10 +1,12 @@
 use crate::{
     print_json, MystikoCliError, WalletCommand, WalletCommands, WalletCreateCommand,
-    WalletExportMnemonicPhraseCommand, WalletImportCommand,
+    WalletExportMnemonicPhraseCommand, WalletImportCommand, WalletUpdatePasswordCommand,
 };
-use mystiko_core::{Mystiko, WalletHandler};
-use mystiko_protos::core::document::v1::Wallet;
-use mystiko_protos::core::handler::v1::CreateWalletOptions;
+use mystiko_core::{AccountHandler, Mystiko, WalletHandler};
+use mystiko_protos::core::document::v1::{Account, Wallet};
+use mystiko_protos::core::handler::v1::{
+    CreateAccountOptions, CreateWalletOptions, UpdateAccountOptions,
+};
 use mystiko_storage::{StatementFormatter, Storage};
 
 pub async fn execute_wallet_command<F, S, W, A, D, X, Y, R>(
@@ -16,7 +18,8 @@ where
     F: StatementFormatter,
     S: Storage,
     W: WalletHandler<Wallet, CreateWalletOptions>,
-    MystikoCliError: From<W::Error>,
+    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
+    MystikoCliError: From<W::Error> + From<A::Error>,
 {
     match args.commands {
         WalletCommands::Create(args) => {
@@ -27,6 +30,9 @@ where
         }
         WalletCommands::ExportMnemonic(args) => {
             execute_wallet_export_mnemonic_phrase_command(mystiko, args).await
+        }
+        WalletCommands::UpdatePassword(args) => {
+            execute_wallet_update_password_command(mystiko, args, compact_json).await
         }
     }
 }
@@ -84,4 +90,27 @@ where
         .await?;
     println!("{}", mnemonic_phrase);
     Ok(())
+}
+
+pub async fn execute_wallet_update_password_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
+    args: WalletUpdatePasswordCommand,
+    compact_json: bool,
+) -> Result<(), MystikoCliError>
+where
+    F: StatementFormatter,
+    S: Storage,
+    W: WalletHandler<Wallet, CreateWalletOptions>,
+    A: AccountHandler<Account, CreateAccountOptions, UpdateAccountOptions>,
+    MystikoCliError: From<W::Error> + From<A::Error>,
+{
+    let wallet = mystiko
+        .wallets
+        .update_password(&args.old, &args.new)
+        .await?;
+    mystiko
+        .accounts
+        .update_encryption(&args.old, &args.new)
+        .await?;
+    print_json(&wallet, compact_json)
 }
