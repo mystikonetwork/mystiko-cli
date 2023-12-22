@@ -214,7 +214,7 @@ pub(crate) fn create_list_filter(
     let limit = limit.max(1_u64);
     let page = page.max(1_u64);
     let order_by = OrderBy::builder()
-        .order(Order::Asc)
+        .order(Order::Desc)
         .columns(vec![DocumentColumn::Id.to_string()])
         .build();
     QueryFilter::builder()

@@ -276,7 +276,7 @@ mock! {
         async fn chain_synced_block(&self, chain_id: u64) -> anyhow::Result<Option<u64>>;
         async fn contract_synced_block(&self, chain_id: u64, contract_address: &str) -> anyhow::Result<Option<u64>>;
         async fn status(&self, with_contracts: bool) -> anyhow::Result<SynchronizerStatus>;
-        async fn sync(&self, sync_option: SyncOptions) -> anyhow::Result<()>;
+        async fn sync(&self, sync_option: SyncOptions) -> anyhow::Result<SynchronizerStatus>;
         async fn reset(&self, reset_options: SynchronizerResetOptions) -> anyhow::Result<()>;
     }
 }
