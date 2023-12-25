@@ -28,7 +28,7 @@ async fn test_synchronizer_sync() {
                 && options.validator_validate_concurrency() == 2
                 && options.chain_ids == [56_u64]
         })
-        .returning(|_| Ok(()));
+        .returning(|_| Ok(Default::default()));
     synchronizer
         .expect_status()
         .withf(|with_contracts| !(*with_contracts))

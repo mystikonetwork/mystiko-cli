@@ -168,7 +168,7 @@ async fn test_spend_list() {
         ),
     ];
     let order_by = OrderBy::builder()
-        .order(Order::Asc)
+        .order(Order::Desc)
         .columns(vec![DocumentColumn::Id.to_string()])
         .build();
     let query_filter = QueryFilter::builder()

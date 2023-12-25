@@ -145,7 +145,7 @@ async fn test_deposit_list() {
         SubFilter::in_list(DepositColumn::ShieldedAddress, vec![String::from("0x1234")]),
     ];
     let order_by = OrderBy::builder()
-        .order(Order::Asc)
+        .order(Order::Desc)
         .columns(vec![DocumentColumn::Id.to_string()])
         .build();
     let query_filter = QueryFilter::builder()
