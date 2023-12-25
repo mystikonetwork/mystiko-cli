@@ -41,8 +41,7 @@ where
     Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, ResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
-    mystiko.synchronizer.sync(args.into()).await?;
-    let status = mystiko.synchronizer.status(false).await?;
+    let status = mystiko.synchronizer.sync(args.into()).await?;
     print_json(&status, compact_json)
 }
 
