@@ -11,11 +11,11 @@ use mystiko_protos::core::handler::v1::{
     QuoteSpendOptions, SendDepositOptions, SendSpendOptions, SpendQuote, SpendSummary,
 };
 use mystiko_protos::core::scanner::v1::{
-    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ScannerResetOptions, ResetResult,
-    ScanOptions, ScanResult,
+    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetResult, ScanOptions,
+    ScanResult, ScannerResetOptions,
 };
 use mystiko_protos::core::synchronizer::v1::{
-    SynchronizerResetOptions, SyncOptions, SynchronizerStatus,
+    SyncOptions, SynchronizerResetOptions, SynchronizerStatus,
 };
 use mystiko_protos::storage::v1::QueryFilter;
 use mystiko_storage::{ColumnValues, SqlStatementFormatter, StatementFormatter, Storage};

@@ -3,7 +3,9 @@ use crate::{
     SynchronizerResetCommand, SynchronizerStatusCommand, SynchronizerSyncCommand,
 };
 use mystiko_core::{Mystiko, SynchronizerHandler};
-use mystiko_protos::core::synchronizer::v1::{SynchronizerResetOptions, SyncOptions, SynchronizerStatus};
+use mystiko_protos::core::synchronizer::v1::{
+    SyncOptions, SynchronizerResetOptions, SynchronizerStatus,
+};
 use mystiko_storage::{StatementFormatter, Storage};
 
 pub async fn execute_synchronizer<F, S, W, A, D, X, Y, R>(

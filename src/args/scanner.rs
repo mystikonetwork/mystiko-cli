@@ -1,6 +1,8 @@
 use crate::args::parse_bridge_types;
 use clap::{Args, Subcommand};
-use mystiko_protos::core::scanner::v1::{AssetsOptions, BalanceOptions, ScannerResetOptions, ScanOptions};
+use mystiko_protos::core::scanner::v1::{
+    AssetsOptions, BalanceOptions, ScanOptions, ScannerResetOptions,
+};
 
 #[derive(Debug, Clone, Args)]
 pub struct ScannerCommand {

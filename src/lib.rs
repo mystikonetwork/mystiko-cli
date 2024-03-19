@@ -21,11 +21,11 @@ use mystiko_protos::core::handler::v1::{
     SendSpendOptions, SpendQuote, SpendSummary, UpdateAccountOptions,
 };
 use mystiko_protos::core::scanner::v1::{
-    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ScannerResetOptions, ResetResult,
-    ScanOptions, ScanResult,
+    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetResult, ScanOptions,
+    ScanResult, ScannerResetOptions,
 };
 use mystiko_protos::core::synchronizer::v1::{
-    SynchronizerResetOptions, SyncOptions, SynchronizerStatus,
+    SyncOptions, SynchronizerResetOptions, SynchronizerStatus,
 };
 use mystiko_static_cache::{FileStaticCache, StaticCache};
 use mystiko_storage::{SqlStatementFormatter, StatementFormatter, Storage};
