@@ -1,5 +1,5 @@
 use clap::{Args, Subcommand};
-use mystiko_protos::core::synchronizer::v1::{ResetChainOptions, ResetOptions, SyncOptions};
+use mystiko_protos::core::synchronizer::v1::{ResetChainOptions, SynchronizerResetOptions, SyncOptions};
 
 #[derive(Debug, Clone, Args)]
 pub struct SynchronizerCommand {
@@ -129,13 +129,13 @@ impl From<SynchronizerSyncCommand> for SyncOptions {
     }
 }
 
-impl From<SynchronizerResetCommand> for ResetOptions {
+impl From<SynchronizerResetCommand> for SynchronizerResetOptions {
     fn from(args: SynchronizerResetCommand) -> Self {
         let chain_options = ResetChainOptions::builder()
             .chain_id(args.chain_id)
             .contract_addresses(args.contract_address.unwrap_or_default())
             .block_number(args.to)
             .build();
-        ResetOptions::builder().chains(vec![chain_options]).build()
+        SynchronizerResetOptions::builder().chains(vec![chain_options]).build()
     }
 }
