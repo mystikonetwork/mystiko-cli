@@ -3,7 +3,9 @@ use crate::{
     SynchronizerResetCommand, SynchronizerStatusCommand, SynchronizerSyncCommand,
 };
 use mystiko_core::{Mystiko, SynchronizerHandler};
-use mystiko_protos::core::synchronizer::v1::{ResetOptions, SyncOptions, SynchronizerStatus};
+use mystiko_protos::core::synchronizer::v1::{
+    SyncOptions, SynchronizerResetOptions, SynchronizerStatus,
+};
 use mystiko_storage::{StatementFormatter, Storage};
 
 pub async fn execute_synchronizer<F, S, W, A, D, X, Y, R>(
@@ -14,7 +16,7 @@ pub async fn execute_synchronizer<F, S, W, A, D, X, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, ResetOptions>,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     match args.commands {
@@ -38,7 +40,7 @@ pub async fn execute_synchronizer_sync<F, S, W, A, D, X, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, ResetOptions>,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     let status = mystiko.synchronizer.sync(args.into()).await?;
@@ -53,7 +55,7 @@ pub async fn execute_synchronizer_status<F, S, W, A, D, X, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, ResetOptions>,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     let status = mystiko.synchronizer.status(args.with_contracts).await?;
@@ -68,10 +70,10 @@ pub async fn execute_synchronizer_reset<F, S, W, A, D, X, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, ResetOptions>,
+    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
-    let options: ResetOptions = args.into();
+    let options: SynchronizerResetOptions = args.into();
     let with_contracts = options
         .chains
         .iter()

@@ -4,8 +4,8 @@ use crate::{
 };
 use mystiko_core::{Mystiko, ScannerHandler};
 use mystiko_protos::core::scanner::v1::{
-    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetOptions, ResetResult,
-    ScanOptions, ScanResult,
+    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetResult, ScanOptions,
+    ScanResult, ScannerResetOptions,
 };
 use mystiko_storage::{StatementFormatter, Storage};
 
@@ -20,7 +20,7 @@ where
     R: ScannerHandler<
         ScanOptions,
         ScanResult,
-        ResetOptions,
+        ScannerResetOptions,
         ResetResult,
         BalanceOptions,
         BalanceResult,
@@ -56,7 +56,7 @@ where
     R: ScannerHandler<
         ScanOptions,
         ScanResult,
-        ResetOptions,
+        ScannerResetOptions,
         ResetResult,
         BalanceOptions,
         BalanceResult,
@@ -80,7 +80,7 @@ where
     R: ScannerHandler<
         ScanOptions,
         ScanResult,
-        ResetOptions,
+        ScannerResetOptions,
         ResetResult,
         BalanceOptions,
         BalanceResult,
@@ -104,7 +104,7 @@ where
     R: ScannerHandler<
         ScanOptions,
         ScanResult,
-        ResetOptions,
+        ScannerResetOptions,
         ResetResult,
         BalanceOptions,
         BalanceResult,
@@ -128,7 +128,7 @@ where
     R: ScannerHandler<
         ScanOptions,
         ScanResult,
-        ResetOptions,
+        ScannerResetOptions,
         ResetResult,
         BalanceOptions,
         BalanceResult,

@@ -1,6 +1,8 @@
 use crate::args::parse_bridge_types;
 use clap::{Args, Subcommand};
-use mystiko_protos::core::scanner::v1::{AssetsOptions, BalanceOptions, ResetOptions, ScanOptions};
+use mystiko_protos::core::scanner::v1::{
+    AssetsOptions, BalanceOptions, ScanOptions, ScannerResetOptions,
+};
 
 #[derive(Debug, Clone, Args)]
 pub struct ScannerCommand {
@@ -83,9 +85,9 @@ impl From<ScannerScanCommand> for ScanOptions {
     }
 }
 
-impl From<ScannerResetCommand> for ResetOptions {
+impl From<ScannerResetCommand> for ScannerResetOptions {
     fn from(args: ScannerResetCommand) -> Self {
-        ResetOptions::builder()
+        ScannerResetOptions::builder()
             .reset_to_id(args.to_id.unwrap_or_default())
             .shielded_addresses(args.shielded_address.unwrap_or_default())
             .build()
