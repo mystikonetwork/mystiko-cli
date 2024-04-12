@@ -61,6 +61,8 @@ pub struct SpendCreateCommand {
     pub password: String,
     #[arg(long, help = "private key for signing the transaction")]
     pub private_key: Option<String>,
+    #[arg(long, help = "provider for signing and sending the transaction")]
+    pub signer_provider: Option<String>,
     #[arg(long, help = "amount of assets to spend")]
     pub amount: f64,
     #[arg(long, help = "rollup fee for the spend output commitments")]

@@ -86,6 +86,7 @@ where
         .spend_id(spend.id)
         .wallet_password(args.password)
         .private_key(args.private_key)
+        .signer_provider(args.signer_provider)
         .query_timeout_ms(args.query_timeout_ms)
         .spend_confirmations(args.confirmations)
         .tx_wait_timeout_ms(args.tx_wait_timeout_ms)

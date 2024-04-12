@@ -47,6 +47,8 @@ pub struct DepositCreateCommand {
     pub rollup_fee: Option<f64>,
     #[arg(long, help = "private key for signing the transaction")]
     pub private_key: String,
+    #[arg(long, help = "provider for signing and sending the transaction")]
+    pub signer_provider: Option<String>,
     #[arg(long, help = "dst_chain_id for the cross-chain deposit")]
     pub dst_chain_id: Option<u64>,
     #[arg(long, help = "bridge_fee_amount for the cross-chain deposit")]

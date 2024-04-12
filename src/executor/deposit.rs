@@ -87,6 +87,7 @@ where
     let options = SendDepositOptions::builder()
         .deposit_id(deposit.id)
         .private_key(args.private_key)
+        .signer_provider(args.signer_provider)
         .query_timeout_ms(args.query_timeout_ms)
         .asset_approve_confirmations(args.asset_approve_confirmations)
         .deposit_confirmations(args.deposit_confirmations)
