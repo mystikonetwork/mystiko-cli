@@ -57,6 +57,8 @@ pub struct DepositCreateCommand {
     pub executor_fee: Option<f64>,
     #[arg(long, help = "bridge_type for the cross-chain deposit")]
     pub bridge_type: Option<String>,
+    #[arg(long, help = "message for the screening")]
+    pub screening_message: Option<String>,
     #[arg(long, help = "timeout in milliseconds for the querying provider")]
     pub query_timeout_ms: Option<u64>,
     #[arg(

@@ -94,6 +94,7 @@ where
         .tx_wait_interval_ms(args.tx_wait_interval_ms)
         .tx_wait_timeout_ms(args.tx_wait_timeout_ms)
         .tx_send_timeout_ms(args.tx_send_timeout_ms)
+        .screening_message(args.screening_message)
         .build();
     let deposit = mystiko.deposits.send(options).await?;
     print_json(&deposit, compact_json)
