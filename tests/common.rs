@@ -52,6 +52,7 @@ where
         MystikoContext::<SqlStatementFormatter, SqliteStorage>::new(database, Some(options))
             .await
             .unwrap();
+    assert_eq!(context.config.version(), "0.1.11223344");
     MockMystiko {
         db: context.db.clone(),
         config: context.config.clone(),
