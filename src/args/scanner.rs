@@ -1,7 +1,8 @@
 use crate::args::parse_bridge_types;
 use clap::{Args, Subcommand};
 use mystiko_protos::core::scanner::v1::{
-    AssetsOptions, BalanceOptions, ScanOptions, ScannerResetOptions,
+    AssetChainImportOptions, AssetImportOptions, AssetsOptions, BalanceOptions, ScanOptions,
+    ScannerResetOptions,
 };
 
 #[derive(Debug, Clone, Args)]
@@ -16,6 +17,8 @@ pub enum ScannerCommands {
     Scan(ScannerScanCommand),
     #[command(about = "reset the scanner")]
     Reset(ScannerResetCommand),
+    #[command(about = "import the assets from the given transaction(s)")]
+    Import(ScannerImportCommand),
     #[command(about = "get the balance of private assets in the current wallet")]
     Balance(ScannerBalanceCommand),
     #[command(about = "group the private assets by chain_id/bridge_type/asset_symbol")]
@@ -48,6 +51,16 @@ pub struct ScannerResetCommand {
     pub to_id: Option<String>,
     #[arg(long, help = "the shielded address(es) to be reset")]
     pub shielded_address: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Args)]
+pub struct ScannerImportCommand {
+    #[arg(long, help = "password of the current wallet")]
+    pub password: String,
+    #[arg(long, help = "the chain id to be imported")]
+    pub chain_id: u64,
+    #[arg(long, help = "the transaction hash(es) to be imported")]
+    pub tx_hashes: Vec<String>,
 }
 
 #[derive(Debug, Clone, Args)]
@@ -90,6 +103,18 @@ impl From<ScannerResetCommand> for ScannerResetOptions {
         ScannerResetOptions::builder()
             .reset_to_id(args.to_id.unwrap_or_default())
             .shielded_addresses(args.shielded_address.unwrap_or_default())
+            .build()
+    }
+}
+
+impl From<ScannerImportCommand> for AssetImportOptions {
+    fn from(args: ScannerImportCommand) -> Self {
+        AssetImportOptions::builder()
+            .wallet_password(args.password)
+            .chains([AssetChainImportOptions::builder()
+                .chain_id(args.chain_id)
+                .tx_hashes(args.tx_hashes)
+                .build()])
             .build()
     }
 }

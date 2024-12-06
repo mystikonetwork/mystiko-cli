@@ -1,11 +1,11 @@
 use crate::{
     print_json, MystikoCliError, ScannerAssetsCommand, ScannerBalanceCommand, ScannerCommand,
-    ScannerCommands, ScannerResetCommand, ScannerScanCommand,
+    ScannerCommands, ScannerImportCommand, ScannerResetCommand, ScannerScanCommand,
 };
 use mystiko_core::{Mystiko, ScannerHandler};
 use mystiko_protos::core::scanner::v1::{
-    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetResult, ScanOptions,
-    ScanResult, ScannerResetOptions,
+    AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
+    BalanceResult, ResetResult, ScanOptions, ScanResult, ScannerResetOptions,
 };
 use mystiko_storage::{StatementFormatter, Storage};
 
@@ -22,6 +22,8 @@ where
         ScanResult,
         ScannerResetOptions,
         ResetResult,
+        AssetImportOptions,
+        AssetImportResult,
         BalanceOptions,
         BalanceResult,
         AssetsOptions,
@@ -35,6 +37,9 @@ where
         }
         ScannerCommands::Reset(args) => {
             execute_scanner_reset_command(mystiko, args, compact_json).await
+        }
+        ScannerCommands::Import(args) => {
+            execute_scanner_import_command(mystiko, args, compact_json).await
         }
         ScannerCommands::Balance(args) => {
             execute_scanner_balance_command(mystiko, args, compact_json).await
@@ -58,6 +63,8 @@ where
         ScanResult,
         ScannerResetOptions,
         ResetResult,
+        AssetImportOptions,
+        AssetImportResult,
         BalanceOptions,
         BalanceResult,
         AssetsOptions,
@@ -82,6 +89,8 @@ where
         ScanResult,
         ScannerResetOptions,
         ResetResult,
+        AssetImportOptions,
+        AssetImportResult,
         BalanceOptions,
         BalanceResult,
         AssetsOptions,
@@ -90,6 +99,32 @@ where
     MystikoCliError: From<R::Error>,
 {
     let result = mystiko.scanner.reset(args.into()).await?;
+    print_json(&result, compact_json)
+}
+
+pub async fn execute_scanner_import_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
+    args: ScannerImportCommand,
+    compact_json: bool,
+) -> Result<(), MystikoCliError>
+where
+    F: StatementFormatter,
+    S: Storage,
+    R: ScannerHandler<
+        ScanOptions,
+        ScanResult,
+        ScannerResetOptions,
+        ResetResult,
+        AssetImportOptions,
+        AssetImportResult,
+        BalanceOptions,
+        BalanceResult,
+        AssetsOptions,
+        AssetsByChain,
+    >,
+    MystikoCliError: From<R::Error>,
+{
+    let result = mystiko.scanner.import(args.into()).await?;
     print_json(&result, compact_json)
 }
 
@@ -106,6 +141,8 @@ where
         ScanResult,
         ScannerResetOptions,
         ResetResult,
+        AssetImportOptions,
+        AssetImportResult,
         BalanceOptions,
         BalanceResult,
         AssetsOptions,
@@ -130,6 +167,8 @@ where
         ScanResult,
         ScannerResetOptions,
         ResetResult,
+        AssetImportOptions,
+        AssetImportResult,
         BalanceOptions,
         BalanceResult,
         AssetsOptions,

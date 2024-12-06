@@ -2,6 +2,7 @@ use crate::common::{mock_mystiko, MockScanner};
 use clap::Parser;
 use mystiko::{execute_with_mystiko, MystikoCliArgs};
 use mystiko_protos::common::v1::BridgeType;
+use mystiko_protos::core::scanner::v1::{AssetChainImportResult, AssetImportResult};
 
 #[allow(dead_code)]
 mod common;
@@ -55,6 +56,38 @@ async fn test_scanner_reset() {
         "--to-id",
         "test_to_id",
         "--shielded-address",
+        "test",
+    ]);
+    execute_with_mystiko(&mystiko, args.commands, false)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn test_scanner_import() {
+    let mut scanner = MockScanner::new();
+    scanner
+        .expect_import()
+        .withf(|options| options.chains[0].chain_id == 1)
+        .returning(|_| {
+            Ok(AssetImportResult::builder()
+                .chains(vec![AssetChainImportResult::builder()
+                    .chain_id(1u64)
+                    .imported_count(1u32)
+                    .found_count(1u32)
+                    .build()])
+                .build())
+        });
+    let mystiko = mock_mystiko(scanner).await;
+    let args = MystikoCliArgs::parse_from([
+        "mystiko",
+        "scanner",
+        "import",
+        "--password",
+        "test_password",
+        "--chain-id",
+        "1",
+        "--tx-hashes",
         "test",
     ]);
     execute_with_mystiko(&mystiko, args.commands, false)

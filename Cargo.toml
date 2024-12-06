@@ -18,11 +18,11 @@ env_logger = { version = "0.10.0" }
 futures = { version = "0.3.26" }
 log = { version = "0.4.17" }
 mystiko_config = { git = "ssh://git@github.com/mystikonetwork/mystiko-static-config.git", rev = "da78078", features = ["fs"] }
-mystiko_core = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "debad65" }
-mystiko_protos = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "debad65", default-features = false, features = ["mystiko-common-v1", "mystiko-core-document-v1", "mystiko-core-synchronizer-v1"] }
-mystiko_static_cache = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "debad65", features = ["fs"] }
-mystiko_storage = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "debad65" }
-mystiko_storage_sqlite = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "debad65" }
+mystiko_core = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "4c97f0f" }
+mystiko_protos = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "4c97f0f", default-features = false, features = ["mystiko-common-v1", "mystiko-core-document-v1", "mystiko-core-synchronizer-v1"] }
+mystiko_static_cache = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "4c97f0f", features = ["fs"] }
+mystiko_storage = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "4c97f0f" }
+mystiko_storage_sqlite = { git = "ssh://git@github.com/mystikonetwork/mystiko-rust.git", rev = "4c97f0f" }
 serde = { version = "1.0.152" }
 serde_json = { version = "1.0.91" }
 thiserror = { version = "1.0", default-features = false }
