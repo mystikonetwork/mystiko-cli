@@ -21,8 +21,8 @@ use mystiko_protos::core::handler::v1::{
     SendSpendOptions, SpendQuote, SpendSummary, UpdateAccountOptions,
 };
 use mystiko_protos::core::scanner::v1::{
-    AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetResult, ScanOptions,
-    ScanResult, ScannerResetOptions,
+    AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
+    BalanceResult, ResetResult, ScanOptions, ScanResult, ScannerResetOptions,
 };
 use mystiko_protos::core::synchronizer::v1::{
     SyncOptions, SynchronizerResetOptions, SynchronizerStatus,
@@ -78,6 +78,8 @@ where
         ScanResult,
         ScannerResetOptions,
         ResetResult,
+        AssetImportOptions,
+        AssetImportResult,
         BalanceOptions,
         BalanceResult,
         AssetsOptions,
