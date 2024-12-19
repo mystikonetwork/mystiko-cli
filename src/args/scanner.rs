@@ -1,6 +1,9 @@
 use crate::args::parse_bridge_types;
 use clap::{Args, Subcommand};
-use mystiko_protos::core::scanner::v1::{AssetChainImportOptions, AssetImportOptions, AssetsOptions, BalanceOptions, ScanOptions, ScannerResetOptions, SyncOptions};
+use mystiko_protos::core::scanner::v1::{
+    AssetChainImportOptions, AssetImportOptions, AssetsOptions, BalanceOptions, ScanOptions,
+    ScannerResetOptions, SyncOptions,
+};
 
 #[derive(Debug, Clone, Args)]
 pub struct ScannerCommand {
@@ -25,7 +28,7 @@ pub enum ScannerCommands {
 }
 
 #[derive(Debug, Clone, Args)]
-pub struct ScannerSyncCommand{
+pub struct ScannerSyncCommand {
     #[arg(long, help = "password of the current wallet")]
     pub password: String,
     #[arg(

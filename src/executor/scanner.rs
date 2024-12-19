@@ -1,6 +1,13 @@
-use crate::{print_json, MystikoCliError, ScannerAssetsCommand, ScannerBalanceCommand, ScannerCommand, ScannerCommands, ScannerImportCommand, ScannerResetCommand, ScannerScanCommand, ScannerSyncCommand};
+use crate::{
+    print_json, MystikoCliError, ScannerAssetsCommand, ScannerBalanceCommand, ScannerCommand,
+    ScannerCommands, ScannerImportCommand, ScannerResetCommand, ScannerScanCommand,
+    ScannerSyncCommand,
+};
 use mystiko_core::{Mystiko, ScannerHandler};
-use mystiko_protos::core::scanner::v1::{AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions, BalanceResult, ResetResult, ScanOptions, ScanResult, ScannerResetOptions, SyncOptions};
+use mystiko_protos::core::scanner::v1::{
+    AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
+    BalanceResult, ResetResult, ScanOptions, ScanResult, ScannerResetOptions, SyncOptions,
+};
 use mystiko_storage::{StatementFormatter, Storage};
 
 pub async fn execute_scanner_command<F, S, W, A, D, X, Y, R>(
