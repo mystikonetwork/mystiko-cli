@@ -1,9 +1,6 @@
 use crate::args::parse_bridge_types;
 use clap::{Args, Subcommand};
-use mystiko_protos::core::scanner::v1::{
-    AssetChainImportOptions, AssetImportOptions, AssetsOptions, BalanceOptions, ScanOptions,
-    ScannerResetOptions,
-};
+use mystiko_protos::core::scanner::v1::{AssetChainImportOptions, AssetImportOptions, AssetsOptions, BalanceOptions, ScanOptions, ScannerResetOptions, SyncOptions};
 
 #[derive(Debug, Clone, Args)]
 pub struct ScannerCommand {
@@ -13,6 +10,8 @@ pub struct ScannerCommand {
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum ScannerCommands {
+    #[command(about = "sync the chain for available commitments")]
+    Sync(ScannerSyncCommand),
     #[command(about = "scan the chain for available private assets")]
     Scan(ScannerScanCommand),
     #[command(about = "reset the scanner")]
@@ -23,6 +22,18 @@ pub enum ScannerCommands {
     Balance(ScannerBalanceCommand),
     #[command(about = "group the private assets by chain_id/bridge_type/asset_symbol")]
     Assets(ScannerAssetsCommand),
+}
+
+#[derive(Debug, Clone, Args)]
+pub struct ScannerSyncCommand{
+    #[arg(long, help = "password of the current wallet")]
+    pub password: String,
+    #[arg(
+        long,
+        default_value_t = 1,
+        help = "number of concurrency for each sync round"
+    )]
+    pub concurrency: u32,
 }
 
 #[derive(Debug, Clone, Args)]
@@ -85,6 +96,15 @@ pub struct ScannerAssetsCommand {
     pub chain_id: Option<Vec<u64>>,
     #[arg(long, help = "show the assets of the given contract address(es)")]
     pub shielded_address: Option<Vec<String>>,
+}
+
+impl From<ScannerSyncCommand> for SyncOptions {
+    fn from(args: ScannerSyncCommand) -> Self {
+        SyncOptions::builder()
+            .wallet_password(args.password)
+            .concurrency(args.concurrency)
+            .build()
+    }
 }
 
 impl From<ScannerScanCommand> for ScanOptions {
