@@ -1,11 +1,12 @@
 use crate::{
     print_json, MystikoCliError, ScannerAssetsCommand, ScannerBalanceCommand, ScannerCommand,
     ScannerCommands, ScannerImportCommand, ScannerResetCommand, ScannerScanCommand,
+    ScannerSyncCommand,
 };
 use mystiko_core::{Mystiko, ScannerHandler};
 use mystiko_protos::core::scanner::v1::{
     AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
-    BalanceResult, ResetResult, ScanOptions, ScanResult, ScannerResetOptions,
+    BalanceResult, ResetResult, ScanOptions, ScanResult, ScannerResetOptions, SyncOptions,
 };
 use mystiko_storage::{StatementFormatter, Storage};
 
@@ -18,6 +19,7 @@ where
     F: StatementFormatter,
     S: Storage,
     R: ScannerHandler<
+        SyncOptions,
         ScanOptions,
         ScanResult,
         ScannerResetOptions,
@@ -32,6 +34,9 @@ where
     MystikoCliError: From<R::Error>,
 {
     match args.commands {
+        ScannerCommands::Sync(args) => {
+            execute_scanner_sync_command(mystiko, args, compact_json).await
+        }
         ScannerCommands::Scan(args) => {
             execute_scanner_scan_command(mystiko, args, compact_json).await
         }
@@ -50,6 +55,33 @@ where
     }
 }
 
+pub async fn execute_scanner_sync_command<F, S, W, A, D, X, Y, R>(
+    mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
+    args: ScannerSyncCommand,
+    compact_json: bool,
+) -> Result<(), MystikoCliError>
+where
+    F: StatementFormatter,
+    S: Storage,
+    R: ScannerHandler<
+        SyncOptions,
+        ScanOptions,
+        ScanResult,
+        ScannerResetOptions,
+        ResetResult,
+        AssetImportOptions,
+        AssetImportResult,
+        BalanceOptions,
+        BalanceResult,
+        AssetsOptions,
+        AssetsByChain,
+    >,
+    MystikoCliError: From<R::Error>,
+{
+    let result = mystiko.scanner.sync(args.into()).await?;
+    print_json(&result, compact_json)
+}
+
 pub async fn execute_scanner_scan_command<F, S, W, A, D, X, Y, R>(
     mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: ScannerScanCommand,
@@ -59,6 +91,7 @@ where
     F: StatementFormatter,
     S: Storage,
     R: ScannerHandler<
+        SyncOptions,
         ScanOptions,
         ScanResult,
         ScannerResetOptions,
@@ -85,6 +118,7 @@ where
     F: StatementFormatter,
     S: Storage,
     R: ScannerHandler<
+        SyncOptions,
         ScanOptions,
         ScanResult,
         ScannerResetOptions,
@@ -111,6 +145,7 @@ where
     F: StatementFormatter,
     S: Storage,
     R: ScannerHandler<
+        SyncOptions,
         ScanOptions,
         ScanResult,
         ScannerResetOptions,
@@ -137,6 +172,7 @@ where
     F: StatementFormatter,
     S: Storage,
     R: ScannerHandler<
+        SyncOptions,
         ScanOptions,
         ScanResult,
         ScannerResetOptions,
@@ -163,6 +199,7 @@ where
     F: StatementFormatter,
     S: Storage,
     R: ScannerHandler<
+        SyncOptions,
         ScanOptions,
         ScanResult,
         ScannerResetOptions,

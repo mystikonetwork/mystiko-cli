@@ -8,6 +8,28 @@ use mystiko_protos::core::scanner::v1::{AssetChainImportResult, AssetImportResul
 mod common;
 
 #[tokio::test]
+async fn test_scanner_sync() {
+    let mut scanner = MockScanner::new();
+    scanner
+        .expect_scan()
+        .withf(|options| options.wallet_password == "test_password" && options.concurrency() == 2)
+        .returning(|_| Ok(Default::default()));
+    let mystiko = mock_mystiko(scanner).await;
+    let args = MystikoCliArgs::parse_from([
+        "mystiko",
+        "scanner",
+        "scan",
+        "--password",
+        "test_password",
+        "--concurrency",
+        "2",
+    ]);
+    execute_with_mystiko(&mystiko, args.commands, false)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
 async fn test_scanner_scan() {
     let mut scanner = MockScanner::new();
     scanner
