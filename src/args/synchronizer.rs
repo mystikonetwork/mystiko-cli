@@ -1,6 +1,6 @@
 use clap::{Args, Subcommand};
 use mystiko_protos::core::synchronizer::v1::{
-    ResetChainOptions, SyncOptions, SynchronizerResetOptions,
+    ResetChainOptions, SynchronizerResetOptions, SynchronizerSyncOptions,
 };
 
 #[derive(Debug, Clone, Args)]
@@ -109,9 +109,9 @@ pub struct SynchronizerResetCommand {
     pub to: Option<u64>,
 }
 
-impl From<SynchronizerSyncCommand> for SyncOptions {
+impl From<SynchronizerSyncCommand> for SynchronizerSyncOptions {
     fn from(command: SynchronizerSyncCommand) -> Self {
-        SyncOptions::builder()
+        SynchronizerSyncOptions::builder()
             .disable_datapacker_fetcher(command.disable_datapacker_fetcher)
             .enable_datapacker_fetcher_validate(command.enable_datapacker_fetcher_validate)
             .disable_sequencer_fetcher(command.disable_sequencer_fetcher)

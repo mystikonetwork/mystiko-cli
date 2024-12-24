@@ -4,7 +4,7 @@ use crate::{
 };
 use mystiko_core::{Mystiko, SynchronizerHandler};
 use mystiko_protos::core::synchronizer::v1::{
-    SyncOptions, SynchronizerResetOptions, SynchronizerStatus,
+    SynchronizerResetOptions, SynchronizerStatus, SynchronizerSyncOptions,
 };
 use mystiko_storage::{StatementFormatter, Storage};
 
@@ -16,7 +16,7 @@ pub async fn execute_synchronizer<F, S, W, A, D, X, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
+    Y: SynchronizerHandler<SynchronizerSyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     match args.commands {
@@ -40,7 +40,7 @@ pub async fn execute_synchronizer_sync<F, S, W, A, D, X, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
+    Y: SynchronizerHandler<SynchronizerSyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     let status = mystiko.synchronizer.sync(args.into()).await?;
@@ -55,7 +55,7 @@ pub async fn execute_synchronizer_status<F, S, W, A, D, X, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
+    Y: SynchronizerHandler<SynchronizerSyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     let status = mystiko.synchronizer.status(args.with_contracts).await?;
@@ -70,7 +70,7 @@ pub async fn execute_synchronizer_reset<F, S, W, A, D, X, Y, R>(
 where
     F: StatementFormatter,
     S: Storage,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
+    Y: SynchronizerHandler<SynchronizerSyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     MystikoCliError: From<Y::Error>,
 {
     let options: SynchronizerResetOptions = args.into();

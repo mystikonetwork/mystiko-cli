@@ -22,11 +22,11 @@ use mystiko_protos::core::handler::v1::{
 };
 use mystiko_protos::core::scanner::v1::{
     AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
-    BalanceResult, ResetResult, ScanOptions, ScanResult, ScannerResetOptions,
-    SyncOptions as ScannerSyncOptions,
+    BalanceResult, ScannerResetOptions, ScannerResetResult, ScannerScanOptions, ScannerScanResult,
+    ScannerSyncOptions,
 };
 use mystiko_protos::core::synchronizer::v1::{
-    SyncOptions, SynchronizerResetOptions, SynchronizerStatus,
+    SynchronizerResetOptions, SynchronizerStatus, SynchronizerSyncOptions,
 };
 use mystiko_static_cache::{FileStaticCache, StaticCache};
 use mystiko_storage::{SqlStatementFormatter, StatementFormatter, Storage};
@@ -73,13 +73,13 @@ where
         SpendSummary,
         SendSpendOptions,
     >,
-    Y: SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
+    Y: SynchronizerHandler<SynchronizerSyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     R: ScannerHandler<
         ScannerSyncOptions,
-        ScanOptions,
-        ScanResult,
+        ScannerScanOptions,
+        ScannerScanResult,
         ScannerResetOptions,
-        ResetResult,
+        ScannerResetResult,
         AssetImportOptions,
         AssetImportResult,
         BalanceOptions,

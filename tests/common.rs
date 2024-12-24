@@ -12,11 +12,11 @@ use mystiko_protos::core::handler::v1::{
 };
 use mystiko_protos::core::scanner::v1::{
     AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
-    BalanceResult, ResetResult, ScanOptions, ScanResult, ScannerResetOptions,
-    SyncOptions as ScannerSyncOptions,
+    BalanceResult, ScannerResetOptions, ScannerResetResult, ScannerScanOptions, ScannerScanResult,
+    ScannerSyncOptions,
 };
 use mystiko_protos::core::synchronizer::v1::{
-    SyncOptions, SynchronizerResetOptions, SynchronizerStatus,
+    SynchronizerResetOptions, SynchronizerStatus, SynchronizerSyncOptions,
 };
 use mystiko_protos::storage::v1::QueryFilter;
 use mystiko_storage::{ColumnValues, SqlStatementFormatter, StatementFormatter, Storage};
@@ -234,10 +234,10 @@ mock! {
     #[async_trait]
     impl ScannerHandler<
         ScannerSyncOptions,
-        ScanOptions,
-        ScanResult,
+        ScannerScanOptions,
+        ScannerScanResult,
         ScannerResetOptions,
-        ResetResult,
+        ScannerResetResult,
         AssetImportOptions,
         AssetImportResult,
         BalanceOptions,
@@ -247,8 +247,8 @@ mock! {
     > for Scanner {
         type Error = anyhow::Error;
         async fn sync(&self, options: ScannerSyncOptions) -> anyhow::Result<BalanceResult>;
-        async fn scan(&self, options: ScanOptions) -> anyhow::Result<ScanResult>;
-        async fn reset(&self, options: ScannerResetOptions) -> anyhow::Result<ResetResult>;
+        async fn scan(&self, options: ScannerScanOptions) -> anyhow::Result<ScannerScanResult>;
+        async fn reset(&self, options: ScannerResetOptions) -> anyhow::Result<ScannerResetResult>;
         async fn import(&self, options: AssetImportOptions) -> anyhow::Result<AssetImportResult>;
         async fn balance(&self, options: BalanceOptions) -> anyhow::Result<BalanceResult>;
         async fn assets(&self, options: AssetsOptions) -> anyhow::Result<Vec<AssetsByChain>>;
@@ -278,12 +278,12 @@ mock! {
     pub Synchronizer {}
 
     #[async_trait]
-    impl SynchronizerHandler<SyncOptions, SynchronizerStatus, SynchronizerResetOptions> for Synchronizer {
+    impl SynchronizerHandler<SynchronizerSyncOptions, SynchronizerStatus, SynchronizerResetOptions> for Synchronizer {
         type Error = anyhow::Error;
         async fn chain_synced_block(&self, chain_id: u64) -> anyhow::Result<Option<u64>>;
         async fn contract_synced_block(&self, chain_id: u64, contract_address: &str) -> anyhow::Result<Option<u64>>;
         async fn status(&self, with_contracts: bool) -> anyhow::Result<SynchronizerStatus>;
-        async fn sync(&self, sync_option: SyncOptions) -> anyhow::Result<SynchronizerStatus>;
+        async fn sync(&self, sync_option: SynchronizerSyncOptions) -> anyhow::Result<SynchronizerStatus>;
         async fn reset(&self, reset_options: SynchronizerResetOptions) -> anyhow::Result<()>;
     }
 }

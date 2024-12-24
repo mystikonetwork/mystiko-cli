@@ -8,10 +8,13 @@ use mystiko_protos::core::document::v1::Deposit;
 use mystiko_protos::core::handler::v1::{
     CreateDepositOptions, DepositQuote, DepositSummary, QuoteDepositOptions, SendDepositOptions,
 };
+use mystiko_protos::core::v1::transaction::Transaction as EnumTransaction;
+use mystiko_protos::core::v1::{Eip1559Transaction, Transaction};
 use mystiko_protos::storage::v1::{
     Condition, ConditionOperator, Order, OrderBy, QueryFilter, SubFilter,
 };
 use mystiko_storage::{DocumentColumn, StatementFormatter, Storage};
+
 pub async fn execute_deposit_command<F, S, W, A, D, X, Y, R>(
     mystiko: &Mystiko<F, S, W, A, D, X, Y, R>,
     args: DepositCommand,
@@ -84,6 +87,22 @@ where
     MystikoCliError: From<D::Error>,
 {
     let deposit = mystiko.deposits.create(args.clone().into()).await?;
+    let tx = if deposit.chain_id == 1 {
+        let tx1 = Eip1559Transaction::builder()
+            .max_priority_fee_per_gas("5000000".to_string())
+            .build();
+        let tx2 = EnumTransaction::Eip1559Transaction(tx1);
+        Some(Transaction::builder().transaction(tx2).build())
+    } else if deposit.chain_id == 137 {
+        let tx1 = Eip1559Transaction::builder()
+            .max_priority_fee_per_gas("30000000000".to_string())
+            .build();
+        let tx2 = EnumTransaction::Eip1559Transaction(tx1);
+        Some(Transaction::builder().transaction(tx2).build())
+    } else {
+        None
+    };
+
     let options = SendDepositOptions::builder()
         .deposit_id(deposit.id)
         .private_key(args.private_key)
@@ -95,6 +114,8 @@ where
         .tx_wait_timeout_ms(args.tx_wait_timeout_ms)
         .tx_send_timeout_ms(args.tx_send_timeout_ms)
         .screening_message(args.screening_message)
+        .asset_approve_tx(tx.clone())
+        .deposit_tx(tx)
         .build();
     let deposit = mystiko.deposits.send(options).await?;
     print_json(&deposit, compact_json)
