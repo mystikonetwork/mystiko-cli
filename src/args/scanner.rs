@@ -1,8 +1,8 @@
 use crate::args::parse_bridge_types;
 use clap::{Args, Subcommand};
 use mystiko_protos::core::scanner::v1::{
-    AssetChainImportOptions, AssetImportOptions, AssetsOptions, BalanceOptions, ScanOptions,
-    ScannerResetOptions, SyncOptions,
+    AssetChainImportOptions, AssetImportOptions, AssetsOptions, BalanceOptions,
+    ScannerResetOptions, ScannerScanOptions, ScannerSyncOptions,
 };
 
 #[derive(Debug, Clone, Args)]
@@ -101,18 +101,18 @@ pub struct ScannerAssetsCommand {
     pub shielded_address: Option<Vec<String>>,
 }
 
-impl From<ScannerSyncCommand> for SyncOptions {
+impl From<ScannerSyncCommand> for ScannerSyncOptions {
     fn from(args: ScannerSyncCommand) -> Self {
-        SyncOptions::builder()
+        ScannerSyncOptions::builder()
             .wallet_password(args.password)
             .concurrency(args.concurrency)
             .build()
     }
 }
 
-impl From<ScannerScanCommand> for ScanOptions {
+impl From<ScannerScanCommand> for ScannerScanOptions {
     fn from(args: ScannerScanCommand) -> Self {
-        ScanOptions::builder()
+        ScannerScanOptions::builder()
             .wallet_password(args.password)
             .batch_size(args.batch_size)
             .concurrency(args.concurrency)
