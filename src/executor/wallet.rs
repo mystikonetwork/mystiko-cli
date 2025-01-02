@@ -2,11 +2,13 @@ use crate::{
     print_json, MystikoCliError, WalletCommand, WalletCommands, WalletCreateCommand,
     WalletExportMnemonicPhraseCommand, WalletImportCommand, WalletUpdatePasswordCommand,
 };
+use anyhow::anyhow;
 use mystiko_core::{AccountHandler, Mystiko, WalletHandler};
 use mystiko_protos::core::document::v1::{Account, Wallet};
 use mystiko_protos::core::handler::v1::{
-    CreateAccountOptions, CreateWalletOptions, UpdateAccountOptions,
+    CreateAccountOptions, CreateWalletOptions, MnemonicOptions, UpdateAccountOptions,
 };
+use mystiko_protos::core::v1::MnemonicType;
 use mystiko_storage::{StatementFormatter, Storage};
 
 pub async fn execute_wallet_command<F, S, W, A, D, X, Y, R>(
@@ -66,9 +68,25 @@ where
     W: WalletHandler<Wallet, CreateWalletOptions>,
     MystikoCliError: From<W::Error>,
 {
+    let words = args.mnemonic.split_whitespace().collect::<Vec<&str>>();
+    let mnemonic = if words.len() == 12 {
+        MnemonicOptions::builder()
+            .mnemonic_phrase(args.mnemonic)
+            .mnemonic_type(MnemonicType::Web)
+            .build()
+    } else if words.len() == 24 {
+        MnemonicOptions::builder()
+            .mnemonic_phrase(args.mnemonic)
+            .mnemonic_type(MnemonicType::Rust)
+            .build()
+    } else {
+        return Err(MystikoCliError::AnyhowError(anyhow!(
+            "Invalid mnemonic phrase"
+        )));
+    };
     let options = CreateWalletOptions::builder()
         .password(args.password)
-        .mnemonic_phrase(args.mnemonic)
+        .mnemonic(mnemonic)
         .build();
     let wallet = mystiko.wallets.create(&options).await?;
     print_json(&wallet, compact_json)

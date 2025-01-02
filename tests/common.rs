@@ -7,8 +7,9 @@ use mystiko_core::{
 use mystiko_protos::common::v1::ConfigOptions;
 use mystiko_protos::core::document::v1::{Deposit, Spend};
 use mystiko_protos::core::handler::v1::{
-    CreateDepositOptions, CreateSpendOptions, DepositQuote, DepositSummary, QuoteDepositOptions,
-    QuoteSpendOptions, SendDepositOptions, SendSpendOptions, SpendQuote, SpendSummary,
+    CreateDepositOptions, CreateSpendOptions, DepositQuote, DepositSummary,
+    FixDepositStatusOptions, FixSpendStatusOptions, QuoteDepositOptions, QuoteSpendOptions,
+    SendDepositOptions, SendSpendOptions, SpendQuote, SpendSummary,
 };
 use mystiko_protos::core::scanner::v1::{
     AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
@@ -102,6 +103,7 @@ mock! {
         CreateDepositOptions,
         DepositSummary,
         SendDepositOptions,
+        FixDepositStatusOptions,
     > for Deposits {
         type Error = anyhow::Error;
         async fn quote(&self, options: QuoteDepositOptions) -> anyhow::Result<DepositQuote>;
@@ -111,6 +113,7 @@ mock! {
         async fn send_with_signer<Signer>(&self, options: SendDepositOptions, signer: Arc<Signer>) -> anyhow::Result<Deposit>
         where
             Signer: TransactionSigner + 'static;
+        async fn fix_status(&self, options: FixDepositStatusOptions) -> anyhow::Result<Deposit>;
         async fn find<Filter>(&self, filter: Filter) -> anyhow::Result<Vec<Deposit>>
         where
             Filter: Into<QueryFilter> + Send + Sync + 'static;
@@ -170,6 +173,7 @@ mock! {
         CreateSpendOptions,
         SpendSummary,
         SendSpendOptions,
+        FixSpendStatusOptions,
     > for Spends {
         type Error = anyhow::Error;
 
@@ -180,6 +184,7 @@ mock! {
         async fn send_with_signer<Signer>(&self, options: SendSpendOptions, signer: Arc<Signer>) -> anyhow::Result<Spend>
         where
             Signer: TransactionSigner + 'static;
+        async fn fix_status(&self, options: FixSpendStatusOptions) -> anyhow::Result<Spend>;
         async fn find<Filter>(&self, filter: Filter) -> anyhow::Result<Vec<Spend>>
         where
             Filter: Into<QueryFilter> + Send + Sync + 'static;

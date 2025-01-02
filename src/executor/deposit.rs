@@ -6,7 +6,8 @@ use crate::{
 use mystiko_core::{DepositColumn, DepositHandler, Mystiko};
 use mystiko_protos::core::document::v1::Deposit;
 use mystiko_protos::core::handler::v1::{
-    CreateDepositOptions, DepositQuote, DepositSummary, QuoteDepositOptions, SendDepositOptions,
+    CreateDepositOptions, DepositQuote, DepositSummary, FixDepositStatusOptions,
+    QuoteDepositOptions, SendDepositOptions,
 };
 use mystiko_protos::core::v1::transaction::Transaction as EnumTransaction;
 use mystiko_protos::core::v1::{Eip1559Transaction, Transaction};
@@ -30,6 +31,7 @@ where
         CreateDepositOptions,
         DepositSummary,
         SendDepositOptions,
+        FixDepositStatusOptions,
     >,
     MystikoCliError: From<D::Error>,
 {
@@ -61,6 +63,7 @@ where
         CreateDepositOptions,
         DepositSummary,
         SendDepositOptions,
+        FixDepositStatusOptions,
     >,
     MystikoCliError: From<D::Error>,
 {
@@ -83,6 +86,7 @@ where
         CreateDepositOptions,
         DepositSummary,
         SendDepositOptions,
+        FixDepositStatusOptions,
     >,
     MystikoCliError: From<D::Error>,
 {
@@ -136,6 +140,7 @@ where
         CreateDepositOptions,
         DepositSummary,
         SendDepositOptions,
+        FixDepositStatusOptions,
     >,
     MystikoCliError: From<D::Error>,
 {

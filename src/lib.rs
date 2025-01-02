@@ -17,8 +17,9 @@ use mystiko_protos::common::v1::ConfigOptions;
 use mystiko_protos::core::document::v1::{Account, Deposit, Spend, Wallet};
 use mystiko_protos::core::handler::v1::{
     CreateAccountOptions, CreateDepositOptions, CreateSpendOptions, CreateWalletOptions,
-    DepositQuote, DepositSummary, QuoteDepositOptions, QuoteSpendOptions, SendDepositOptions,
-    SendSpendOptions, SpendQuote, SpendSummary, UpdateAccountOptions,
+    DepositQuote, DepositSummary, FixDepositStatusOptions, FixSpendStatusOptions,
+    QuoteDepositOptions, QuoteSpendOptions, SendDepositOptions, SendSpendOptions, SpendQuote,
+    SpendSummary, UpdateAccountOptions,
 };
 use mystiko_protos::core::scanner::v1::{
     AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
@@ -64,6 +65,7 @@ where
         CreateDepositOptions,
         DepositSummary,
         SendDepositOptions,
+        FixDepositStatusOptions,
     >,
     X: SpendHandler<
         Spend,
@@ -72,6 +74,7 @@ where
         CreateSpendOptions,
         SpendSummary,
         SendSpendOptions,
+        FixSpendStatusOptions,
     >,
     Y: SynchronizerHandler<SynchronizerSyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     R: ScannerHandler<
