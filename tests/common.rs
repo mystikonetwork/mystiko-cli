@@ -7,9 +7,9 @@ use mystiko_core::{
 use mystiko_protos::common::v1::ConfigOptions;
 use mystiko_protos::core::document::v1::{Deposit, Spend};
 use mystiko_protos::core::handler::v1::{
-    CreateDepositOptions, CreateSpendOptions, DepositQuote, DepositSummary, QuoteDepositOptions,
-    QuoteSpendOptions, SendDepositOptions, SendSpendOptions, SpendQuote, SpendSummary,
-    FixDepositStatusOptions,FixSpendStatusOptions
+    CreateDepositOptions, CreateSpendOptions, DepositQuote, DepositSummary,
+    FixDepositStatusOptions, FixSpendStatusOptions, QuoteDepositOptions, QuoteSpendOptions,
+    SendDepositOptions, SendSpendOptions, SpendQuote, SpendSummary,
 };
 use mystiko_protos::core::scanner::v1::{
     AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
