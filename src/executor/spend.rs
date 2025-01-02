@@ -7,7 +7,8 @@ use crate::{
 use mystiko_core::{Mystiko, SpendColumn, SpendHandler};
 use mystiko_protos::core::document::v1::Spend;
 use mystiko_protos::core::handler::v1::{
-    CreateSpendOptions, QuoteSpendOptions, SendSpendOptions, SpendQuote, SpendSummary,
+    CreateSpendOptions, FixSpendStatusOptions, QuoteSpendOptions, SendSpendOptions, SpendQuote,
+    SpendSummary,
 };
 use mystiko_protos::storage::v1::SubFilter;
 use mystiko_storage::{StatementFormatter, Storage};
@@ -27,6 +28,7 @@ where
         CreateSpendOptions,
         SpendSummary,
         SendSpendOptions,
+        FixSpendStatusOptions,
     >,
     MystikoCliError: From<X::Error>,
 {
@@ -56,6 +58,7 @@ where
         CreateSpendOptions,
         SpendSummary,
         SendSpendOptions,
+        FixSpendStatusOptions,
     >,
     MystikoCliError: From<X::Error>,
 {
@@ -78,6 +81,7 @@ where
         CreateSpendOptions,
         SpendSummary,
         SendSpendOptions,
+        FixSpendStatusOptions,
     >,
     MystikoCliError: From<X::Error>,
 {
@@ -114,6 +118,7 @@ where
         CreateSpendOptions,
         SpendSummary,
         SendSpendOptions,
+        FixSpendStatusOptions,
     >,
     MystikoCliError: From<X::Error>,
 {
