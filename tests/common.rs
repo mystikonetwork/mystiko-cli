@@ -14,7 +14,7 @@ use mystiko_protos::core::handler::v1::{
 use mystiko_protos::core::scanner::v1::{
     AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
     BalanceResult, ScannerResetOptions, ScannerResetResult, ScannerScanOptions, ScannerScanResult,
-    ScannerSyncOptions,
+    ScannerSyncOptions, ScannerSyncResult,
 };
 use mystiko_protos::core::synchronizer::v1::{
     SynchronizerResetOptions, SynchronizerStatus, SynchronizerSyncOptions,
@@ -239,6 +239,7 @@ mock! {
     #[async_trait]
     impl ScannerHandler<
         ScannerSyncOptions,
+        ScannerSyncResult,
         ScannerScanOptions,
         ScannerScanResult,
         ScannerResetOptions,
@@ -251,7 +252,7 @@ mock! {
         AssetsByChain,
     > for Scanner {
         type Error = anyhow::Error;
-        async fn sync(&self, options: ScannerSyncOptions) -> anyhow::Result<BalanceResult>;
+        async fn sync(&self, options: ScannerSyncOptions) -> anyhow::Result<ScannerSyncResult>;
         async fn scan(&self, options: ScannerScanOptions) -> anyhow::Result<ScannerScanResult>;
         async fn reset(&self, options: ScannerResetOptions) -> anyhow::Result<ScannerResetResult>;
         async fn import(&self, options: AssetImportOptions) -> anyhow::Result<AssetImportResult>;

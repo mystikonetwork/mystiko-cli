@@ -24,7 +24,7 @@ use mystiko_protos::core::handler::v1::{
 use mystiko_protos::core::scanner::v1::{
     AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
     BalanceResult, ScannerResetOptions, ScannerResetResult, ScannerScanOptions, ScannerScanResult,
-    ScannerSyncOptions,
+    ScannerSyncOptions, ScannerSyncResult,
 };
 use mystiko_protos::core::synchronizer::v1::{
     SynchronizerResetOptions, SynchronizerStatus, SynchronizerSyncOptions,
@@ -79,6 +79,7 @@ where
     Y: SynchronizerHandler<SynchronizerSyncOptions, SynchronizerStatus, SynchronizerResetOptions>,
     R: ScannerHandler<
         ScannerSyncOptions,
+        ScannerSyncResult,
         ScannerScanOptions,
         ScannerScanResult,
         ScannerResetOptions,

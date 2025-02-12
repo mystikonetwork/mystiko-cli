@@ -7,7 +7,7 @@ use mystiko_core::{Mystiko, ScannerHandler};
 use mystiko_protos::core::scanner::v1::{
     AssetImportOptions, AssetImportResult, AssetsByChain, AssetsOptions, BalanceOptions,
     BalanceResult, ScannerResetOptions, ScannerResetResult, ScannerScanOptions, ScannerScanResult,
-    ScannerSyncOptions,
+    ScannerSyncOptions, ScannerSyncResult,
 };
 use mystiko_storage::{StatementFormatter, Storage};
 
@@ -21,6 +21,7 @@ where
     S: Storage,
     R: ScannerHandler<
         ScannerSyncOptions,
+        ScannerSyncResult,
         ScannerScanOptions,
         ScannerScanResult,
         ScannerResetOptions,
@@ -66,6 +67,7 @@ where
     S: Storage,
     R: ScannerHandler<
         ScannerSyncOptions,
+        ScannerSyncResult,
         ScannerScanOptions,
         ScannerScanResult,
         ScannerResetOptions,
@@ -93,6 +95,7 @@ where
     S: Storage,
     R: ScannerHandler<
         ScannerSyncOptions,
+        ScannerSyncResult,
         ScannerScanOptions,
         ScannerScanResult,
         ScannerResetOptions,
@@ -120,6 +123,7 @@ where
     S: Storage,
     R: ScannerHandler<
         ScannerSyncOptions,
+        ScannerSyncResult,
         ScannerScanOptions,
         ScannerScanResult,
         ScannerResetOptions,
@@ -147,6 +151,7 @@ where
     S: Storage,
     R: ScannerHandler<
         ScannerSyncOptions,
+        ScannerSyncResult,
         ScannerScanOptions,
         ScannerScanResult,
         ScannerResetOptions,
@@ -174,6 +179,7 @@ where
     S: Storage,
     R: ScannerHandler<
         ScannerSyncOptions,
+        ScannerSyncResult,
         ScannerScanOptions,
         ScannerScanResult,
         ScannerResetOptions,
@@ -201,6 +207,7 @@ where
     S: Storage,
     R: ScannerHandler<
         ScannerSyncOptions,
+        ScannerSyncResult,
         ScannerScanOptions,
         ScannerScanResult,
         ScannerResetOptions,
